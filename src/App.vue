@@ -1,8 +1,8 @@
 <template>
     <div id="app">
-        <b-navbar fixed-top="true">
+        <b-navbar fixed-top>
             <template slot="brand">
-                <b-navbar-item tag="router-link" :to="{ path: '/' }">
+                <b-navbar-item>
                     <img
                             src="https://raw.githubusercontent.com/buefy/buefy/dev/static/img/buefy-logo.png"
                             alt="Theme Park Wait Time Predictor"
@@ -19,16 +19,19 @@
             <template slot="end">
             </template>
         </b-navbar>
+        <section>
+            <DataExplorer></DataExplorer>
+        </section>
     </div>
 </template>
 
 <script>
-    // import HelloWorld from './components/HelloWorld.vue'
+    import DataExplorer from "./components/DataExplorer";
 
     export default {
         name: 'app',
         components: {
-            // HelloWorld
+            DataExplorer
         }
     }
 </script>
