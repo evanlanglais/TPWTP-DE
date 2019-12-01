@@ -66,9 +66,12 @@
     </div>
 </template>
 
-<script>
-    export default {
-        name: "VisualizerConfiguration",
+<script lang="ts">
+    import Vue from "vue";
+    import moment from 'moment';
+    import {Moment} from 'moment';
+
+    export default Vue.extend({
         data: function() {
             return {
                 selectedPark: null,
@@ -80,7 +83,7 @@
                     { id: "wdwmk", name: "Walt Disney World Magic Kingdom" },
                     { id: "wdwe", name: "Walt Disney World Epcot" },
                     { id: "usf", name: "Universal Studio's Florida" },
-                    { id: "usiof", name: "Universal Studio's Islands of Adventure" }
+                    { id: "uioa", name: "Universal's Islands of Adventure" }
                 ],
                 rides: {
                     'wdwmk': [
@@ -148,12 +151,15 @@
                 if (this.selectedPark != null && this.selectedRide != null) {
                     this.$emit('drawGraph', {
                         selectedPark: this.selectedPark,
-                        selectedRide: this.selectedRide
+                        selectedRide: this.selectedRide,
+                        startDate: this.dateStart,
+                        endDate: this.dateEnd,
+                        comparisonMethod: this.comparisonPeriod
                     });
                 }
             }
         }
-    }
+    });
 </script>
 
 <style scoped>

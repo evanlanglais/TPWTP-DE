@@ -11,12 +11,14 @@
     </div>
 </template>
 
-<script>
-    import Visualizer from "./Visualizer";
-    import VisualizerConfiguration from "./VisualizerConfiguration";
-    export default {
-        name: "DataExplorer",
-        data: function() {
+<script lang="ts">
+    import Vue from "vue";
+    import Visualizer from "./Visualizer.vue";
+    import VisualizerConfiguration from "./VisualizerConfiguration.vue";
+
+    export default Vue.extend({
+        // name: "DataExplorer",
+        data() {
             return {
                 visualizerConfig: {}
             }
@@ -24,11 +26,11 @@
         methods: {
             drawGraph(config) {
                 this.visualizerConfig = config;
-                this.$refs.visualizer.drawGraph();
+                this.$refs.visualizer.drawGraph(config);
             }
         },
         components: {VisualizerConfiguration, Visualizer}
-    }
+    });
 </script>
 
 <style scoped>

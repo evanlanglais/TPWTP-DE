@@ -1,12 +1,12 @@
-import { Park } from "./Park";
-import { Moment } from "moment";
+// import { Park } from "./Park";
+import moment, { Moment } from "moment";
 import {DayOfData} from "./DayOfData";
-import moment = require("moment");
+// import moment = require("moment");
 import {Datapoint} from "./Datapoint";
 
 const axios = require('axios').default;
 
-enum ComparisonPeriod {
+export enum ComparisonPeriod {
     MONTH = 'month',
     WEEK = 'week',
     DAY = 'day',
@@ -14,7 +14,7 @@ enum ComparisonPeriod {
     DAYOFYEAR = 'dayofyear'
 }
 
-const baseURL: string = 'http://api.tpwtp.com/';
+const baseURL: string = 'http://localhost:8080/'; // 'http://api.tpwtp.com/';
 
 function APIURL(endpoint: string): string {
     return `${baseURL}${endpoint}`;
@@ -28,12 +28,12 @@ function getParkRideIds(parkId: string) {
     return axios.get(APIURL(`park/${parkId}/rides`));
 }
 
-function getSequentialDatapoints(parkId: string, rideId: string, startDate: Moment, endDate: Moment) {
+export function getSequentialDatapoints(parkId: string, rideId: string, startDate: Moment, endDate: Moment) {
     return axios.post(APIURL(`park/${parkId}/ride/${rideId}/dayrange`), {
         start_date: startDate.toISOString(),
         end_date: endDate.toISOString(),
     })
-        .then(function (response) {
+        .then(function (response: any) {
             // handle success
             let ride_dps: any = response.data.ride_dps;
             let daysOfData: Array<DayOfData> = Object.keys(ride_dps).map(
@@ -47,7 +47,7 @@ function getSequentialDatapoints(parkId: string, rideId: string, startDate: Mome
             );
             return daysOfData;
         })
-        .catch(function (error) {
+        .catch(function (error: any) {
             // handle error
             console.log(error);
         })
@@ -55,14 +55,14 @@ function getSequentialDatapoints(parkId: string, rideId: string, startDate: Mome
             // always executed
         });
 }
-
+/*
 function getComparisonDatapoints(parkId: string, rideId: string, baseDate: Moment, endDate: Moment, comparisonPeriod: ComparisonPeriod) {
     return axios.post(APIURL(`park/${parkId}/ride/${rideId}/comparable`), {
         base_date: baseDate.toISOString(),
         end_date: endDate.toISOString(),
         compare_index: comparisonPeriod.toString()
     })
-        .then(function (response) {
+        .then(function (response: any) {
             // handle success
             console.log(response);
         })
@@ -74,7 +74,7 @@ function getComparisonDatapoints(parkId: string, rideId: string, baseDate: Momen
             // always executed
         });
 }
-
+*/
 /* USE THIS FOR WHEN I ACTUALLY LOAD DYNAMIC DATA FOR CONFIGURATION
 function getUserAccount() {
   return axios.get('/user/12345');
@@ -89,7 +89,7 @@ axios.all([getUserAccount(), getUserPermissions()])
     // Both requests are now complete
   }));
  */
-
+/*
 export class API {
     parks: Array<Park>;
 
@@ -97,3 +97,4 @@ export class API {
 
     }
 }
+*/

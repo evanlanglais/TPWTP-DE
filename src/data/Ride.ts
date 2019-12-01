@@ -1,5 +1,5 @@
-import {Park} from "./Park";
-
+// import {Park} from "./Park";
+/*
 export class Ride {
     id: string;
     name: string;
@@ -7,3 +7,4 @@ export class Ride {
 
 
 }
+*/
