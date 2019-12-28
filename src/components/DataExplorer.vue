@@ -31,8 +31,6 @@
         },
         methods: {
             updateConfig(config: {startDate: string, endDate: string, comparisonMethod: ComparisonPeriod, selectedPark: Park, selectedRide: Ride}) {
-                if (!this.validateConfig(config)) return;
-
                 this.isLoading = true;
                 const startDate: Moment = moment(config.startDate);
                 const endDate: Moment = moment(config.endDate);
@@ -52,15 +50,6 @@
                         .finally(() => {this.isLoading = false});
                 }
             },
-            validateConfig(config: {startDate: string, endDate: string, comparisonMethod: string, selectedPark: Park, selectedRide: Ride}) {
-              if (config.startDate == null) return false;
-              if (config.endDate == null) return false;
-              if (config.comparisonMethod == null) return false;
-              if (!config.selectedPark) return false;
-              if (!config.selectedRide) return false;
-
-              return true;
-            }
         },
         components: {VisualizerConfiguration, Visualizer}
     });

@@ -3,7 +3,7 @@
         <div class="tile is-parent">
             <div class="tile is-child box">
                 <b-field label="Park">
-                    <b-select placeholder="Select a park" v-model="selectedPark" expanded>
+                    <b-select placeholder="Select a park" v-model="selectedPark" @input="updateSelectableRides()" ref="parkSelector" expanded>
                         <option
                                 v-for="park in selectableParks"
                                 :value="park"
@@ -13,7 +13,7 @@
                     </b-select>
                 </b-field>
                 <b-field label="Ride">
-                    <b-select placeholder="Select a ride" v-model="selectedRide" expanded>
+                    <b-select placeholder="Select a ride" v-model="selectedRide" ref="rideSelector" expanded>
                         <option
                                 v-for="ride in selectableRides"
                                 :value="ride"
@@ -66,13 +66,6 @@
                 </b-field>
             </div>
         </div>
-        <div class="tile is-parent">
-            <div class="tile is-child box">
-                <b-button @click="drawCurrentConfiguration()">
-                    Redraw Visualizer
-                </b-button>
-            </div>
-        </div>
     </div>
 </template>
 
@@ -81,6 +74,14 @@
     import {ComparisonPeriod, getSupportedParks} from "../data/API";
     import {Park} from "../data/Park";
     import {Ride} from "../data/Ride";
+
+    interface Configuration {
+        selectedPark: Park,
+        selectedRide: Ride,
+        startDate: string,
+        endDate: string,
+        comparisonMethod: ComparisonPeriod
+    }
 
     export default Vue.extend({
         data: function() {
@@ -116,22 +117,38 @@
                     }
                 );
             },
-            drawCurrentConfiguration() {
-                if (this.selectedPark != null && this.selectedRide != null) {
-                    this.$emit('updateConfig', {
-                        selectedPark: this.selectedPark,
-                        selectedRide: this.selectedRide,
-                        startDate: this.dateStart,
-                        endDate: this.dateEnd,
-                        comparisonMethod: this.comparisonPeriod
-                    });
-                }
+            isConfigurationValid(config: Configuration): boolean {
+                if (config.startDate == null || typeof config.startDate === "undefined" || config.startDate === "") return false;
+                if (config.endDate == null || typeof config.endDate === "undefined" || config.endDate === "") return false;
+                if (config.comparisonMethod == null || typeof config.comparisonMethod === "undefined") return false;
+                if (typeof config.selectedPark === "undefined" || config.selectedPark.id == null || config.selectedPark.id === "") return false;
+                if (typeof config.selectedRide === "undefined" || config.selectedRide.id == null || config.selectedRide.id === "") return false;
+
+                return true;
+            },
+            updateSelectableRides() {
+                this.selectedRide = {} as Ride;
+                this.selectableRides = this.selectedPark.rides;
+            }
+        },
+        computed: {
+            currentConfiguration(): Configuration {
+                return {
+                    selectedPark: this.selectedPark,
+                    selectedRide: this.selectedRide,
+                    startDate: this.dateStart,
+                    endDate: this.dateEnd,
+                    comparisonMethod: this.comparisonPeriod
+                };
             }
         },
         watch: {
-            'selectedPark': {
-                handler(value: Park) {
-                    this.selectableRides = value.rides;
+            'currentConfiguration': {
+                handler(value: Configuration) {
+                    if (this.isConfigurationValid(value)) {
+                        console.log("EMITTING");
+                        this.$emit('updateConfig', value);
+                    }
                 }
             }
         }
