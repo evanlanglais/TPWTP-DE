@@ -54,7 +54,7 @@
                         </option>
                     </b-select>
                 </b-field>
-                <b-field label="Visualization Method">
+                <b-field label="Visualization Method" hidden>
                     <b-select placeholder="Select a visualization method" v-model="visualizationMethod" expanded>
                         <option
                                 v-for="visualizer in visualizationMethods"
