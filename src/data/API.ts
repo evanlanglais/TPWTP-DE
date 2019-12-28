@@ -1,8 +1,9 @@
-// import { Park } from "./Park";
 import moment, { Moment } from "moment";
 import {DayOfData} from "./DayOfData";
-// import moment = require("moment");
-import {Datapoint} from "./Datapoint";
+import {DataPackage} from "./DataPackage";
+import {Park} from "./Park";
+import {AxiosResponse} from "axios";
+import {Ride} from "./Ride";
 
 const axios = require('axios').default;
 
@@ -20,16 +21,22 @@ function APIURL(endpoint: string): string {
     return `${baseURL}${endpoint}`;
 }
 
-function getSupportedParkIds() {
-    return axios.get(APIURL('parks'));
+export function getSupportedParks(): Promise<Array<Park>> {
+    return new Promise<Array<Park>>((resolve, reject) => {
+        axios.get(APIURL('parks'))
+            .then(function(response: AxiosResponse) {
+                let parks: Array<Park> = response.data;
+                resolve(parks);
+            });
+    });
 }
 
 function getParkRideIds(parkId: string) {
     return axios.get(APIURL(`park/${parkId}/rides`));
 }
 
-export function getSequentialDatapoints(parkId: string, rideId: string, startDate: Moment, endDate: Moment) {
-    return axios.post(APIURL(`park/${parkId}/ride/${rideId}/dayrange`), {
+export function getSequentialDatapoints(park: Park, ride: Ride, startDate: Moment, endDate: Moment) {
+    return axios.post(APIURL(`park/${park.id}/ride/${ride.id}/dayrange`), {
         start_date: startDate.toISOString(),
         end_date: endDate.toISOString(),
     })
@@ -45,7 +52,11 @@ export function getSequentialDatapoints(parkId: string, rideId: string, startDat
                     return dayOfData;
                 }
             );
-            return daysOfData;
+            let dataPackage: DataPackage = {
+                ride: response.data.ride,
+                data: daysOfData
+            };
+            return dataPackage;
         })
         .catch(function (error: any) {
             // handle error
@@ -55,16 +66,30 @@ export function getSequentialDatapoints(parkId: string, rideId: string, startDat
             // always executed
         });
 }
-/*
-function getComparisonDatapoints(parkId: string, rideId: string, baseDate: Moment, endDate: Moment, comparisonPeriod: ComparisonPeriod) {
-    return axios.post(APIURL(`park/${parkId}/ride/${rideId}/comparable`), {
+
+export function getComparisonDatapoints(park: Park, ride: Ride, baseDate: Moment, endDate: Moment, comparisonPeriod: ComparisonPeriod) {
+    return axios.post(APIURL(`park/${park.id}/ride/${ride.id}/comparable`), {
         base_date: baseDate.toISOString(),
         end_date: endDate.toISOString(),
         compare_index: comparisonPeriod.toString()
     })
         .then(function (response: any) {
             // handle success
-            console.log(response);
+            let ride_dps: any = response.data.ride_dps;
+            let daysOfData: Array<DayOfData> = Object.keys(ride_dps).map(
+                function(dateString: string){
+                    const dayOfData: DayOfData = {
+                        date: moment(dateString),
+                        dps: ride_dps[dateString]
+                    };
+                    return dayOfData;
+                }
+            );
+            let dataPackage: DataPackage = {
+                ride: response.data.ride,
+                data: daysOfData
+            };
+            return dataPackage;
         })
         .catch(function (error) {
             // handle error
@@ -74,7 +99,7 @@ function getComparisonDatapoints(parkId: string, rideId: string, baseDate: Momen
             // always executed
         });
 }
-*/
+
 /* USE THIS FOR WHEN I ACTUALLY LOAD DYNAMIC DATA FOR CONFIGURATION
 function getUserAccount() {
   return axios.get('/user/12345');

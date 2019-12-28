@@ -1,32 +1,65 @@
 <template>
-    <div>
+    <section>
         <VisualizerConfiguration
                 ref="configurator"
-                @drawGraph="drawGraph">
+                @updateConfig="updateConfig">
         </VisualizerConfiguration>
+        <b-loading :is-full-page="true" :active.sync="isLoading" :can-cancel="false"></b-loading>
         <Visualizer
                 ref="visualizer"
-                v-bind:config="visualizerConfig">
+                v-bind:tpwtp-data="tpwtpData">
         </Visualizer>
-    </div>
+    </section>
 </template>
 
 <script lang="ts">
     import Vue from "vue";
     import Visualizer from "./Visualizer.vue";
     import VisualizerConfiguration from "./VisualizerConfiguration.vue";
+    import moment, {Moment} from "moment";
+    import {ComparisonPeriod, getComparisonDatapoints, getSequentialDatapoints} from "../data/API";
+    import {DataPackage} from "../data/DataPackage";
+    import {Park} from "../data/Park";
+    import {Ride} from "../data/Ride";
 
     export default Vue.extend({
-        // name: "DataExplorer",
         data() {
             return {
-                visualizerConfig: {}
+                tpwtpData: {} as DataPackage,
+                isLoading: false
             }
         },
         methods: {
-            drawGraph(config) {
-                this.visualizerConfig = config;
-                this.$refs.visualizer.drawGraph(config);
+            updateConfig(config: {startDate: string, endDate: string, comparisonMethod: ComparisonPeriod, selectedPark: Park, selectedRide: Ride}) {
+                if (!this.validateConfig(config)) return;
+
+                this.isLoading = true;
+                const startDate: Moment = moment(config.startDate);
+                const endDate: Moment = moment(config.endDate);
+                const comparisonPeriod: ComparisonPeriod = config.comparisonMethod;
+
+                if (comparisonPeriod == ComparisonPeriod.DAY) {
+                    getSequentialDatapoints(config.selectedPark, config.selectedRide, startDate, endDate)
+                        .then((result: DataPackage) => {
+                            this.tpwtpData = result;
+                        })
+                        .finally(() => {this.isLoading = false});
+                } else {
+                    getComparisonDatapoints(config.selectedPark, config.selectedRide, endDate, startDate, comparisonPeriod)
+                        .then((result: DataPackage) => {
+                            this.tpwtpData = result;
+                        })
+                        .finally(() => {this.isLoading = false});
+                }
+            },
+            validateConfig(config: {startDate: string, endDate: string, comparisonMethod: string, selectedPark: Park, selectedRide: Ride}) {
+              if (config.startDate == null) return false;
+              if (config.endDate == null) return false;
+              if (config.comparisonMethod == null) return false;
+              if (!config.selectedPark) return false;
+              if (!config.selectedRide) return false;
+
+              return true;
             }
         },
         components: {VisualizerConfiguration, Visualizer}

@@ -3,17 +3,21 @@
         <b-navbar fixed-top>
             <template slot="brand">
                 <b-navbar-item>
+                    <h1>Theme Park Wait Time Predictor: Data Explorer</h1>
+                    <!--
                     <img
-                            src="https://raw.githubusercontent.com/buefy/buefy/dev/static/img/buefy-logo.png"
-                            alt="Theme Park Wait Time Predictor"
-                    >
+                        src="https://raw.githubusercontent.com/buefy/buefy/dev/static/img/buefy-logo.png"
+                        alt="Theme Park Wait Time Predictor">
+                    -->
                 </b-navbar-item>
             </template>
 
             <template slot="start">
+                <!--
                 <b-navbar-item href="#">
                     Home
                 </b-navbar-item>
+                -->
             </template>
 
             <template slot="end">
