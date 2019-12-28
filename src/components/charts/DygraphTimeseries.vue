@@ -2,7 +2,7 @@
     <div class="tile is-ancestor">
         <div class="tile is-vertical">
             <div class="tile">
-                <div class="tile is-parent">
+                <div class="tile is-parent is-10">
                     <div class="tile is-child box">
                         <b-field label="Smoothing">
                             <b-slider v-model="smoothing" :min="1" :max="25" ticks>
@@ -10,23 +10,22 @@
                         </b-field>
                     </div>
                 </div>
-                <div class="tile is-parent">
+                <div class="tile is-parent is-2">
                     <div class="tile is-child box">
-                        <b-button >Reset Zoom</b-button>
+                        <b-button @click="resetZoom()">Reset Zoom</b-button>
                     </div>
                 </div>
             </div>
             <div class="tile">
-                <div class="tile is-parent is-10">
+                <div class="tile is-parent is-9">
                     <div class="tile is-child box">
-                        <Dygraphs
-                                v-bind:graphData="graphData"
-                                v-bind:graphOptions="graphOptions"
-                        >
+                        <Dygraphs ref="dygraph"
+                                  v-bind:graphData="graphData"
+                                  v-bind:graphOptions="graphOptions">
                         </Dygraphs>
                     </div>
                 </div>
-                <div class="tile is-parent is-2">
+                <div class="tile is-parent is-3">
                     <div class="tile is-child box">
                         <h3>Legend</h3>
                         <div ref="labelsDiv" id="labelsDiv" class="labelsDiv"></div>
@@ -56,6 +55,14 @@
                 smoothing: 1,
                 graphData: [[0]],
                 dynamicLabels: ["Index"]
+            }
+        },
+        methods: {
+            resetZoom() {
+                this.$refs.dygraph.$data._graph.updateOptions({
+                    dateWindow: null,
+                    valueRange: null
+                });
             }
         },
         computed: {
