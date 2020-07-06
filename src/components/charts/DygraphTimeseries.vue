@@ -137,10 +137,11 @@
     });
 </script>
 
-<style scoped>
-    .labelsDiv > span.highlight { border: 1px solid grey; }
-
-    .labelsDiv > span { display: none; }
-
-    .labelsDiv > span.highlight { display: inline; }
+<style>
+    .labelsDiv > span.highlight {
+        padding: .2em .4em;
+        border-radius: .25em;
+        border: #2c3e50 1px solid;
+        background-color: lavender;
+    }
 </style>
