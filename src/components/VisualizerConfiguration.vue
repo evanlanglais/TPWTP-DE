@@ -1,69 +1,69 @@
 <template>
     <div class="tile is-ancestor">
-        <div class="tile is-parent">
-            <div class="tile is-child box">
-                <b-field label="Park">
-                    <b-select placeholder="Select a park" v-model="selectedPark" @input="updateSelectableRides()" ref="parkSelector" expanded>
-                        <option
-                                v-for="park in selectableParks"
-                                :value="park"
-                                :key="park.id">
-                            {{ park.name }}
-                        </option>
-                    </b-select>
-                </b-field>
-                <b-field label="Ride">
-                    <b-select placeholder="Select a ride" v-model="selectedRide" ref="rideSelector" expanded>
-                        <option
-                                v-for="ride in selectableRides"
-                                :value="ride"
-                                :key="ride.id">
-                            {{ ride.name }}
-                        </option>
-                    </b-select>
-                </b-field>
+        <div class="tile is-parent is-4">
+            <div class="tile is-child card">
+                <header class="card-header">
+                    <p class="card-header-title">
+                        Date Range
+                    </p>
+                </header>
+                <div class="card-content">
+                    <b-field horizontal>
+                        <b-datepicker
+                                inline
+                                range
+                                v-model="dates">
+                        </b-datepicker>
+                    </b-field>
+                </div>
             </div>
         </div>
-        <div class="tile is-parent">
-            <div class="tile is-child box">
-                <b-field label="Start Date">
-                    <b-datepicker
-                            placeholder="Click to select..."
-                            icon="calendar-today"
-                            v-model="dateStart">
-                    </b-datepicker>
-                </b-field>
-                <b-field label="End Date">
-                    <b-datepicker
-                            placeholder="Click to select..."
-                            icon="calendar-today"
-                            v-model="dateEnd">
-                    </b-datepicker>
-                </b-field>
+        <div class="tile is-parent is-vertical">
+            <div class="tile is-child card">
+                <header class="card-header">
+                    <p class="card-header-title">
+                        Ride Selection
+                    </p>
+                </header>
+                <div class="card-content">
+                    <b-field horizontal label="Park">
+                        <b-select placeholder="Select a park" v-model="selectedPark" @input="updateSelectableRides()" ref="parkSelector" expanded>
+                            <option
+                                    v-for="park in selectableParks"
+                                    :value="park"
+                                    :key="park.id">
+                                {{ park.name }}
+                            </option>
+                        </b-select>
+                    </b-field>
+                    <b-field horizontal label="Ride">
+                        <b-select placeholder="Select a ride" v-model="selectedRide" ref="rideSelector" expanded>
+                            <option
+                                    v-for="ride in selectableRides"
+                                    :value="ride"
+                                    :key="ride.id">
+                                {{ ride.name }}
+                            </option>
+                        </b-select>
+                    </b-field>
+                </div>
             </div>
-        </div>
-        <div class="tile is-parent">
-            <div class="tile is-child box">
-                <b-field label="Comparison Period">
-                    <b-select placeholder="Select a comparison period" v-model="comparisonPeriod" expanded>
-                        <option
-                                v-for="period in comparisonPeriods"
-                                :value="period.id"
-                                :key="period.id">
+            <div class="tile is-child card">
+                <header class="card-header">
+                    <p class="card-header-title">
+                        Comparison Method
+                    </p>
+                </header>
+                <div class="card-content">
+                    <b-field position="is-left"
+                             v-for="period in comparisonPeriods"
+                             :key="period.id">
+                        <b-radio v-model="comparisonPeriod"
+                                 :native-value="period.id">
                             {{ period.name }}
-                        </option>
-                    </b-select>
-                </b-field>
-                <b-field label="Visualization Method" hidden>
-                    <b-select placeholder="Select a visualization method" v-model="visualizationMethod" expanded>
-                        <option
-                                v-for="visualizer in visualizationMethods"
-                                :value="visualizer.id"
-                                :key="visualizer.id">
-                            {{ visualizer.name }}
-                        </option>
-                    </b-select>
-                </b-field>
+                        </b-radio>
+                    </b-field>
+                </div>
             </div>
         </div>
     </div>
@@ -88,6 +88,7 @@
             return {
                 selectedPark: {} as Park,
                 selectedRide: {} as Ride,
+                dates: [],
                 dateStart: null,
                 dateEnd: null,
                 comparisonPeriod: null,
@@ -95,10 +96,10 @@
                 selectableParks: [] as Array<Park>,
                 selectableRides: [] as Array<Ride>,
                 comparisonPeriods: [
-                    { id: ComparisonPeriod.DAY, name: "Compare sequentially with every day" },
-                    { id: ComparisonPeriod.DAYOFWEEK, name: "Compare with the same day every week" },
-                    { id: ComparisonPeriod.MONTH, name: "Compare with the same day every month" },
-                    { id: ComparisonPeriod.DAYOFYEAR, name: "Compare with the Same day every year" }
+                    { id: ComparisonPeriod.DAY, name: "Compare against every day" },
+                    { id: ComparisonPeriod.DAYOFWEEK, name: "Compare against the same day of every week selected" },
+                    { id: ComparisonPeriod.MONTH, name: "Compare against the same day of every month selected" },
+                    { id: ComparisonPeriod.DAYOFYEAR, name: "Compare against the same day of every year selected" }
                 ],
                 visualizationMethods: [
                     { id: 'timeseries', name: "Layered Timeseries" },
@@ -136,8 +137,8 @@
                 return {
                     selectedPark: this.selectedPark,
                     selectedRide: this.selectedRide,
-                    startDate: this.dateStart,
-                    endDate: this.dateEnd,
+                    startDate: this.dates[0],
+                    endDate: this.dates[1],
                     comparisonMethod: this.comparisonPeriod
                 };
             }
