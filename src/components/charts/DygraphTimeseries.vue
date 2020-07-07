@@ -11,24 +11,37 @@
                     </div>
                 </div>
                 <div class="tile is-parent is-2">
-                    <div class="tile is-child box">
+                    <div class="tile is-child box has-text-centered">
                         <b-button @click="resetZoom()">Reset Zoom</b-button>
                     </div>
                 </div>
             </div>
             <div class="tile">
                 <div class="tile is-parent is-9">
-                    <div class="tile is-child box">
-                        <Dygraphs ref="dygraph"
-                                  v-bind:graphData="graphData"
-                                  v-bind:graphOptions="graphOptions">
-                        </Dygraphs>
+                    <div class="tile is-child card">
+                        <header class="card-header">
+                            <p class="card-header-title is-centered">
+                                Ride Wait-Times
+                            </p>
+                        </header>
+                        <div class="card-content">
+                            <Dygraphs ref="dygraph"
+                                      v-bind:graphData="graphData"
+                                      v-bind:graphOptions="graphOptions">
+                            </Dygraphs>
+                        </div>
                     </div>
                 </div>
                 <div class="tile is-parent is-3">
-                    <div class="tile is-child box">
-                        <h3>Legend</h3>
-                        <div ref="labelsDiv" id="labelsDiv" class="labelsDiv"></div>
+                    <div class="tile is-child card">
+                        <header class="card-header">
+                            <p class="card-header-title is-centered">
+                                Legend
+                            </p>
+                        </header>
+                        <div class="card-content">
+                            <div ref="labelsDiv" id="labelsDiv" class="labelsDiv has-text-centered"></div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -66,7 +79,17 @@
             }
         },
         computed: {
-            graphOptions() {
+            graphOptions: function () {
+                const timeOffsetFormatter = function(time_offset: number) {
+                    const base_moment = moment().startOf('day');
+                    base_moment.add(time_offset * 5, 'm');
+                    return base_moment.format("h:mm A");
+                };
+
+                const minuteFormatter = function(minutes: number) {
+                    return `${Math.trunc(minutes)} min`;
+                };
+
                 return {
                     labels: this.$data.dynamicLabels,
                     rollPeriod: this.$data.smoothing,
@@ -76,12 +99,14 @@
                     strokeBorderWidth: 1,
                     animatedZooms: true,
 
+                    hideOverlayOnMouseOut: false,
+
                     labelsDiv: 'labelsDiv',
                     labelsSeparateLines: true,
+                    legend: 'always',
 
-                    title: 'Ride Wait-times',
                     xlabel: 'Time Of Day',
-                    ylabel: 'Wait Time (min)',
+                    ylabel: 'Wait Time',
 
                     highlightSeriesOpts: {
                         strokeWidth: 3,
@@ -91,17 +116,12 @@
 
                     axes: {
                         x: {
-                            axisLabelFormatter: function(time_offset: number) {
-                                const base_moment = moment().startOf('day');
-                                base_moment.add(time_offset * 5, 'm');
-                                return base_moment.format("h:m A");
-                                // return `${time_offset} t-off`;
-                            }
+                            axisLabelFormatter: timeOffsetFormatter,
+                            valueFormatter: timeOffsetFormatter
                         },
                         y: {
-                            axisLabelFormatter: function(minutes: number) {
-                                return `${Math.trunc(minutes)} min`;
-                            }
+                            axisLabelFormatter: minuteFormatter,
+                            valueFormatter: minuteFormatter
                         }
                     }
                 }
