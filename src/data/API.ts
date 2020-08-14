@@ -15,24 +15,34 @@ export enum ComparisonPeriod {
     DAYOFYEAR = 'dayofyear'
 }
 
-const baseURL: string = 'http://api.tpwtp.com/';
+const baseURL: string = 'https://api.tpwtp.com/';
 
 function APIURL(endpoint: string): string {
     return `${baseURL}${endpoint}`;
 }
 
 export function getSupportedParks(): Promise<Array<Park>> {
-    return new Promise<Array<Park>>((resolve, reject) => {
-        axios.get(APIURL('parks'))
-            .then(function(response: AxiosResponse) {
-                let parks: Array<Park> = response.data;
-                resolve(parks);
-            });
-    });
+    return axios.get(APIURL('parks'))
+        .then(function(response: AxiosResponse) {
+            let parks: Array<Park> = response.data;
+            return parks;
+        })
+        .then((parks: Array<Park>) => {
+            return Promise.all(parks.map(async park => {
+                park.rides = await getParkRides(park.id)
+                return park;
+            }));
+        });
 }
 
-function getParkRideIds(parkId: string) {
-    return axios.get(APIURL(`park/${parkId}/rides`));
+function getParkRides(parkId: string): Promise<Array<Ride>> {
+    return new Promise<Array<Ride>>((resolve) => {
+        return axios.get(APIURL(`park/${parkId}/rides`))
+            .then(function(response: AxiosResponse) {
+                let rides: Array<Ride> = response.data;
+                return resolve(rides);
+            })
+    })
 }
 
 export function getSequentialDatapoints(park: Park, ride: Ride, startDate: Moment, endDate: Moment) {
