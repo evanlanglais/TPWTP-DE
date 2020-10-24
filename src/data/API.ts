@@ -15,7 +15,7 @@ export enum ComparisonPeriod {
     DAYOFYEAR = 'dayofyear'
 }
 
-const baseURL: string = 'https://api.tpwtp.com/';
+const baseURL: string = 'https://tpwtp.com/api/';
 
 function APIURL(endpoint: string): string {
     return `${baseURL}${endpoint}`;

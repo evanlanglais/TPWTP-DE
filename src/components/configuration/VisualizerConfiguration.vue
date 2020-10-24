@@ -1,53 +1,26 @@
 <template>
     <div class="tile is-ancestor">
         <div class="tile is-parent is-4">
-            <div class="tile is-child card">
-                <header class="card-header">
-                    <p class="card-header-title">
-                        Date Range
-                    </p>
-                </header>
-                <div class="card-content">
-                    <b-field horizontal>
-                        <b-datepicker
-                                inline
-                                range
-                                v-model="dates">
-                        </b-datepicker>
-                    </b-field>
-                </div>
-            </div>
+            <ride-selector class="tile"
+                           @parkSelected="(park) => { this.selectedPark = park; }"
+                           @rideSelected="(ride) => { this.selectedRide = ride; }"></ride-selector>
         </div>
         <div class="tile is-parent is-vertical">
-            <div class="tile is-child card">
-                <header class="card-header">
-                    <p class="card-header-title">
-                        Ride Selection
-                    </p>
-                </header>
-                <div class="card-content">
-                    <b-field horizontal label="Park">
-                        <b-select placeholder="Select a park" v-model="selectedPark" @input="updateSelectableRides()" ref="parkSelector" expanded>
-                            <option
-                                    v-for="park in selectableParks"
-                                    :value="park"
-                                    :key="park.id">
-                                {{ park.name }}
-                            </option>
-                        </b-select>
-                    </b-field>
-                    <b-field horizontal label="Ride">
-                        <b-select placeholder="Select a ride" v-model="selectedRide" ref="rideSelector" expanded>
-                            <option
-                                    v-for="ride in selectableRides"
-                                    :value="ride"
-                                    :key="ride.id">
-                                {{ ride.name }}
-                            </option>
-                        </b-select>
-                    </b-field>
-                </div>
+          <div class="tile is-child card">
+            <header class="card-header">
+              <p class="card-header-title">
+                Date Range
+              </p>
+            </header>
+            <div class="card-content">
+              <b-field horizontal label="Select Date Range">
+                <b-datepicker
+                    range
+                    v-model="dates">
+                </b-datepicker>
+              </b-field>
             </div>
+          </div>
             <div class="tile is-child card">
                 <header class="card-header">
                     <p class="card-header-title">
@@ -71,9 +44,10 @@
 
 <script lang="ts">
     import Vue from "vue";
-    import {ComparisonPeriod, getSupportedParks} from "../data/API";
-    import {Park} from "../data/Park";
-    import {Ride} from "../data/Ride";
+    import {ComparisonPeriod, getSupportedParks} from "../../data/API";
+    import {Park} from "../../data/Park";
+    import {Ride} from "../../data/Ride";
+    import RideSelector from "./RideSelector.vue";
 
     interface Configuration {
         selectedPark: Park,
@@ -84,6 +58,7 @@
     }
 
     export default Vue.extend({
+        components: {RideSelector},
         data: function() {
             return {
                 selectedPark: {} as Park,
@@ -93,8 +68,8 @@
                 dateEnd: null,
                 comparisonPeriod: null,
                 visualizationMethod: null,
-                selectableParks: [] as Array<Park>,
-                selectableRides: [] as Array<Ride>,
+                // selectableParks: [] as Array<Park>,
+                // selectableRides: [] as Array<Ride>,
                 comparisonPeriods: [
                     { id: ComparisonPeriod.DAY, name: "Compare against every day" },
                     { id: ComparisonPeriod.DAYOFWEEK, name: "Compare against the same day of every week selected" },
@@ -108,16 +83,16 @@
             }
         },
         created(): void {
-            this.populateConfigurations();
+            // this.populateConfigurations();
         },
         methods: {
-            populateConfigurations() {
-                getSupportedParks().then(
-                    (parks: Array<Park>) => {
-                        this.selectableParks = parks;
-                    }
-                );
-            },
+            //populateConfigurations() {
+            //    getSupportedParks().then(
+            //        (parks: Array<Park>) => {
+            //            this.selectableParks = parks;
+            //        }
+            //    );
+            //},
             isConfigurationValid(config: Configuration): boolean {
                 if (config.startDate == null || typeof config.startDate === "undefined" || config.startDate === "") return false;
                 if (config.endDate == null || typeof config.endDate === "undefined" || config.endDate === "") return false;
@@ -127,10 +102,10 @@
 
                 return true;
             },
-            updateSelectableRides() {
-                this.selectedRide = {} as Ride;
-                this.selectableRides = this.selectedPark.rides;
-            }
+            //updateSelectableRides() {
+            //    this.selectedRide = {} as Ride;
+            //    this.selectableRides = this.selectedPark.rides;
+            //}
         },
         computed: {
             currentConfiguration(): Configuration {
@@ -147,7 +122,6 @@
             'currentConfiguration': {
                 handler(value: Configuration) {
                     if (this.isConfigurationValid(value)) {
-                        console.log("EMITTING");
                         this.$emit('updateConfig', value);
                     }
                 }

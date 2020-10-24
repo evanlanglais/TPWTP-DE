@@ -15,7 +15,7 @@
 <script lang="ts">
     import Vue from "vue";
     import Visualizer from "./Visualizer.vue";
-    import VisualizerConfiguration from "./VisualizerConfiguration.vue";
+    import VisualizerConfiguration from "./configuration/VisualizerConfiguration.vue";
     import moment, {Moment} from "moment";
     import {ComparisonPeriod, getComparisonDatapoints, getSequentialDatapoints} from "../data/API";
     import {DataPackage} from "../data/DataPackage";

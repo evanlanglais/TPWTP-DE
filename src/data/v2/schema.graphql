@@ -1,0 +1,53 @@
+type Location {
+    latitude: Float,
+    longitude: Float
+}
+
+scalar ParkId
+scalar RideId
+scalar DateTime
+scalar Date
+
+type Park {
+    id: ParkId!,
+    name: String!,
+    location: Location
+    rides: [Ride]
+}
+
+type Ride {
+    id: RideId!,
+    name: String!,
+    park: Park,
+    layer1: Layer1Data,
+    currentWaitTime: WaitTime
+}
+
+type WaitTime {
+    wait: Int,
+    time: DateTime
+}
+
+enum Interval {
+    DAY
+    WEEK
+    MONTH
+    YEAR
+}
+
+type HistoricalWaitTime {
+    date: DateTime,
+    waitTimes: [WaitTime]
+}
+
+type Layer1Data {
+    currentWaitTime: WaitTime,
+    historicalWaitTime(begin: String, end: String, interval: Interval): [HistoricalWaitTime]
+}
+
+type Query {
+    parks: [Park],
+    park(id: ParkId!): Park,
+    rides: [Ride],
+    ride(id: RideId!): Ride
+}
