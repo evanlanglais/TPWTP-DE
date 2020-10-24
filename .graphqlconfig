@@ -4,7 +4,7 @@
     "extensions": {
         "endpoints": {
             "Default GraphQL Endpoint": {
-                "url": "https://api.tpwtp.com/v2",
+                "url": "https://tpwtp.com/api/v2",
                 "headers": {
                     "user-agent": "JS GraphQL"
                 },
