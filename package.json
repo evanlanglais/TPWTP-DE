@@ -4,7 +4,8 @@
   "private": true,
   "scripts": {
     "serve": "parcel serve index.html",
-    "build": "parcel build index.html",
+    "build": "parcel build index.html --out-dir dist --public-url ./",
+    "prebuild": "rimraf dist",
     "lint": "vue-cli-service lint"
   },
   "dependencies": {
@@ -39,7 +40,8 @@
     "parcel": "^1.12.4",
     "typescript": "^3.9.7",
     "vue-cli-plugin-apollo": "~0.22.2",
-    "vue-template-compiler": "^2.6.12"
+    "vue-template-compiler": "^2.6.12",
+    "rimraf": "^3.0.2"
   },
   "eslintConfig": {
     "root": true,
