@@ -6,7 +6,6 @@ type Location {
 scalar ParkId
 scalar RideId
 scalar DateTime
-scalar Date
 
 type Park {
     id: ParkId!,
@@ -23,6 +22,11 @@ type Ride {
     currentWaitTime: WaitTime
 }
 
+type OperatingDay {
+    date: DateTime,
+    waitTimes: [WaitTime]
+}
+
 type WaitTime {
     wait: Int,
     time: DateTime
@@ -35,14 +39,9 @@ enum Interval {
     YEAR
 }
 
-type HistoricalWaitTime {
-    date: DateTime,
-    waitTimes: [WaitTime]
-}
-
 type Layer1Data {
     currentWaitTime: WaitTime,
-    historicalWaitTime(begin: String, end: String, interval: Interval): [HistoricalWaitTime]
+    historicalWaitTime(start: DateTime, end: DateTime, interval: Interval): [OperatingDay]
 }
 
 type Query {
