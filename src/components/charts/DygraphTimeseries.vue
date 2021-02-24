@@ -59,9 +59,7 @@
     export default Vue.extend({
         components: {Dygraphs},
         props: {
-            tpwtpData: {
-                type: Object as() => DataPackage
-            }
+            historicData: {}
         },
         data() {
             return {
@@ -128,18 +126,21 @@
             }
         },
         watch: {
-            'tpwtpData': {
-                handler(val: DataPackage) {
+            'historicData': {
+                handler(val) {
+                    // val is an array of objects
                     // 288 rows tall, each column for the number of days
-                    const dataMatrix = Array.from(Array(288), _ => Array(val.data.length).fill(null));
+                    const dataMatrix = Array.from(Array(288), _ => Array(val.length).fill(null));
                     let labelBuilder = ["Index"];
 
                     // Populate each datapoint for each day of data
                     let dayIndex = 0;
-                    for (const dayOfData of val.data) {
-                        labelBuilder.push(dayOfData.date.format('MMM Do'));
-                        for (const datapoint of dayOfData.dps) {
-                            dataMatrix[datapoint.t][dayIndex] = datapoint.y;
+                    for (let dayOfData of val) {
+                        labelBuilder.push(moment(dayOfData.date).format('ddd MMM Do'));
+                        let timeIndex = 0;
+                        for (let datapoint of dayOfData.waitTimes) {
+                            dataMatrix[timeIndex][dayIndex] = datapoint.wait;
+                            timeIndex++;
                         }
                         dayIndex++;
                     }

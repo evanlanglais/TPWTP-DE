@@ -6,7 +6,7 @@
                 :options="graphOptions">
         </LineChart>
         -->
-        <DygraphTimeseries v-bind:tpwtp-data="tpwtpData">
+        <DygraphTimeseries v-bind:historicData="historicData">
         </DygraphTimeseries>
     </section>
 </template>
@@ -21,7 +21,7 @@
 
     export default Vue.extend({
         components: {DygraphTimeseries},
-        props: ["tpwtpData"],
+        props: ["historicData"],
         data() {
             return {
                 graphType: GraphType.DygraphTimeseries
@@ -31,55 +31,7 @@
 
         },
         computed: {
-            /*
-            graphData(): object {
-                let datasets: Array<object> = [];
-                for (const day of this.visualizedData) {
-                    const test = day.dps.filter((datapoint: Datapoint) => datapoint.t > 84).map(this.datapointMoment);
-                    //console.log(test);
-                    let dataset = {
-                        label: day.date.format('LL'),
-                        fill: false,
-                        backgroundColor: "#007BA7",
-                        borderColor: "#007BA7",
-                        borderWidth: 1,
-                        lineTension: 0,
-                        showLine: false,
-                        data: test
-                    };
-                    datasets.push(dataset);
-                }
-                return {
-                    datasets: datasets
-                }
-            },
 
-            graphOptions(): object {
-                return {
-                    responsive: true,
-                    title: {
-                        display: true,
-                        text: 'Data Line Chart'
-                    },
-                    scales: {
-                        xAxes: [{
-                            display: true,
-                            type: 'time',
-                            time: {
-                                minUnit: 'minute'
-                            },
-                            distribution: 'linear',
-                            ticks: {
-                                source: 'auto'
-                            }
-                        }],
-                        yAxes: [{
-                            display: true
-                        }]
-                    }
-                }
-            }
-            */
         }
     });
 </script>

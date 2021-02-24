@@ -4,10 +4,10 @@
                 ref="configurator"
                 @updateConfig="updateConfig">
         </VisualizerConfiguration>
-        <b-loading :is-full-page="true" :active.sync="isLoading" :can-cancel="false"></b-loading>
+        <b-loading :is-full-page="true" :active="(isLoading > 0)" :can-cancel="false"></b-loading>
         <Visualizer
                 ref="visualizer"
-                v-bind:tpwtp-data="tpwtpData">
+                v-bind:historicData="historicData">
         </Visualizer>
     </section>
 </template>
@@ -16,40 +16,57 @@
     import Vue from "vue";
     import Visualizer from "./Visualizer.vue";
     import VisualizerConfiguration from "./configuration/VisualizerConfiguration.vue";
-    import moment, {Moment} from "moment";
-    import {ComparisonPeriod, getComparisonDatapoints, getSequentialDatapoints} from "../data/API";
-    import {DataPackage} from "../data/DataPackage";
     import {Park} from "../data/Park";
     import {Ride} from "../data/Ride";
+    import gql from "graphql-tag";
 
     export default Vue.extend({
         data() {
             return {
-                tpwtpData: {} as DataPackage,
-                isLoading: false
+                historicData: [],
+                isLoading: 0,
+                historicConfig: null
             }
         },
         methods: {
-            updateConfig(config: {startDate: string, endDate: string, comparisonMethod: ComparisonPeriod, selectedPark: Park, selectedRide: Ride}) {
-                this.isLoading = true;
-                const startDate: Moment = moment(config.startDate);
-                const endDate: Moment = moment(config.endDate);
-                const comparisonPeriod: ComparisonPeriod = config.comparisonMethod;
-
-                if (comparisonPeriod == ComparisonPeriod.DAY) {
-                    getSequentialDatapoints(config.selectedPark, config.selectedRide, startDate, endDate)
-                        .then((result: DataPackage) => {
-                            this.tpwtpData = result;
-                        })
-                        .finally(() => {this.isLoading = false});
-                } else {
-                    getComparisonDatapoints(config.selectedPark, config.selectedRide, endDate, startDate, comparisonPeriod)
-                        .then((result: DataPackage) => {
-                            this.tpwtpData = result;
-                        })
-                        .finally(() => {this.isLoading = false});
-                }
+            updateConfig(config: {startDate: string, endDate: string, interval: Interval, selectedPark: Park, selectedRide: Ride}) {
+                this.historicConfig = config;
             },
+        },
+        apollo: {
+            historicData: {
+                query: gql`query historicRideTimes ($rideId: RideId!, $start: DateTime!, $end: DateTime!, $interval: Interval!) {
+                                ride(id: $rideId) {
+                                        layer1 {
+                                            historicalWaitTime(start: $start, end: $end, interval: $interval) {
+                                                date
+                                                waitTimes {
+                                                    wait
+                                                    time
+                                                }
+                                            }
+                                        }
+                                    }
+                            }`,
+                update(data: any) {
+                    // The returned value will update
+                    // the vue property 'pingMessage'
+                    return data.ride.layer1.historicalWaitTime
+                },
+                variables(): any {
+                    // Use vue reactive properties here
+                    return {
+                        rideId: this.historicConfig.selectedRide.id,
+                        start: this.historicConfig.startDate,
+                        end: this.historicConfig.endDate,
+                        interval: this.historicConfig.interval,
+                    }
+                },
+                skip(): boolean {
+                    return !this.historicConfig
+                },
+                loadingKey: 'isLoading'
+            }
         },
         components: {VisualizerConfiguration, Visualizer}
     });
