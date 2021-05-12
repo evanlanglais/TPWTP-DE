@@ -119,7 +119,8 @@
                         },
                         y: {
                             axisLabelFormatter: minuteFormatter,
-                            valueFormatter: minuteFormatter
+                            valueFormatter: minuteFormatter,
+                            includeZero: true
                         }
                     }
                 }
