@@ -29,7 +29,7 @@
             }
         },
         methods: {
-            updateConfig(config: {startDate: string, endDate: string, interval: Interval, selectedPark: Park, selectedRide: Ride}) {
+            updateConfig(config: {startDate: string, endDate: string, interval: Interval, selectedPark: Park, selectedRides: Array<Ride>}) {
                 this.historicConfig = config;
             },
         },
@@ -56,14 +56,47 @@
                 variables(): any {
                     // Use vue reactive properties here
                     return {
-                        rideId: this.historicConfig.selectedRide.id,
+                        rideId: this.historicConfig.selectedRides[0].id,
                         start: this.historicConfig.startDate,
                         end: this.historicConfig.endDate,
                         interval: this.historicConfig.interval,
                     }
                 },
                 skip(): boolean {
-                    return !this.historicConfig
+                    return !this.historicConfig || this.historicConfig.selectedRides.length > 1;
+                },
+                loadingKey: 'isLoading'
+            },
+            dayData: {
+                query: gql`query historicRideTimes ($rideId: RideId!, $start: DateTime!, $end: DateTime!, $interval: Interval!) {
+                                ride(id: $rideId) {
+                                        layer1 {
+                                            historicalWaitTime(start: $start, end: $end, interval: $interval) {
+                                                date
+                                                waitTimes {
+                                                    wait
+                                                    time
+                                                }
+                                            }
+                                        }
+                                    }
+                            }`,
+                update(data: any) {
+                    // The returned value will update
+                    // the vue property 'pingMessage'
+                    return data.ride.layer1.historicalWaitTime
+                },
+                variables(): any {
+                    // Use vue reactive properties here
+                    return {
+                        rideId: this.historicConfig.selectedRides[0].id,
+                        start: this.historicConfig.startDate,
+                        end: this.historicConfig.endDate,
+                        interval: this.historicConfig.interval,
+                    }
+                },
+                skip(): boolean {
+                    return !this.historicConfig || this.historicConfig.selectedRides.length > 1;
                 },
                 loadingKey: 'isLoading'
             }
