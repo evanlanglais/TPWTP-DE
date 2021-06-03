@@ -62,12 +62,20 @@ import {Park} from "../../data/Park";
 import {Ride} from "../../data/Ride";
 import RideSelector from "./RideSelector.vue";
 
+export type Config = {
+    startDate: Date,
+    endDate: Date,
+    interval: string,
+    selectedPark: Park,
+    selectedRides: Array<Ride>
+}
+
 export default Vue.extend({
     components: {RideSelector},
     data: function() {
         return {
             selectedPark: {} as Park,
-            selectedRides: Array as () => Array<Ride>,
+            selectedRides: [] as Array<Ride>,
             dates: [],
             dateStart: new Date(),
             dateEnd: new Date(),
@@ -90,9 +98,9 @@ export default Vue.extend({
 
     },
     methods: {
-        isConfigurationValid(config): boolean {
-            if (config.startDate == null || typeof config.startDate === "undefined" || config.startDate === "") return false;
-            if (config.endDate == null || typeof config.endDate === "undefined" || config.endDate === "") return false;
+        isConfigurationValid(config: Config): boolean {
+            if (typeof config.startDate === "undefined") return false;
+            if (typeof config.endDate === "undefined") return false;
             //if (config.comparisonMethod == null || typeof config.comparisonMethod === "undefined") return false;
             if (typeof config.selectedPark === "undefined" || config.selectedPark.id == null || config.selectedPark.id === "") return false;
             if (typeof config.selectedRides === "undefined" || config.selectedRides.length == 0) return false;
@@ -102,7 +110,7 @@ export default Vue.extend({
 
     },
     computed: {
-        currentConfiguration() {
+        currentConfiguration(): Config {
             return {
                 selectedPark: this.selectedPark,
                 selectedRides: this.selectedRides,

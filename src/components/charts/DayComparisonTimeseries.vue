@@ -21,7 +21,7 @@
                     <div class="tile is-child card">
                         <header class="card-header">
                             <p class="card-header-title is-centered">
-                                Ride Wait-Times
+                                Wait Times for {{ historicData.name }}
                             </p>
                         </header>
                         <div class="card-content">
@@ -52,8 +52,6 @@
 <script lang="ts">
     import Vue from 'vue'
     import { Dygraphs } from 'vue-dygraphs'
-    import {DayOfData} from "../../data/DayOfData";
-    import {DataPackage} from "../../data/DataPackage";
     import moment from "moment";
 
     export default Vue.extend({
@@ -128,15 +126,17 @@
         },
         watch: {
             'historicData': {
-                handler(val) {
+                immediate: true,
+                handler(dataPackage: {name: string, data: Array<any>}) {
+                    const data = dataPackage.data;
                     // val is an array of objects
                     // 288 rows tall, each column for the number of days
-                    const dataMatrix = Array.from(Array(288), _ => Array(val.length).fill(null));
+                    const dataMatrix = Array.from(Array(288), _ => Array(data.length).fill(null));
                     let labelBuilder = ["Index"];
 
                     // Populate each datapoint for each day of data
                     let dayIndex = 0;
-                    for (let dayOfData of val) {
+                    for (let dayOfData of data) {
                         labelBuilder.push(moment(dayOfData.date).format('ddd MMM Do'));
                         let timeIndex = 0;
                         for (let datapoint of dayOfData.waitTimes) {

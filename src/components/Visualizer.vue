@@ -6,25 +6,34 @@
                 :options="graphOptions">
         </LineChart>
         -->
-        <DygraphTimeseries v-bind:historicData="historicData">
-        </DygraphTimeseries>
+        <DayComparisonTimeseries v-if="selectedVisualizationMethod === VisualizationMethod.DayComparisonTimeseries"
+                                 v-bind:historicData="dataPackage">
+        </DayComparisonTimeseries>
+        <RideComparisonTimeseries v-if="selectedVisualizationMethod === VisualizationMethod.RideComparisonTimeseries"
+                                  v-bind:historicData="dataPackage">
+        </RideComparisonTimeseries>
     </section>
 </template>
 
 <script lang="ts">
     import Vue from "vue";
-    import DygraphTimeseries from "./charts/DygraphTimeseries.vue";
+    import DayComparisonTimeseries from "./charts/DayComparisonTimeseries.vue";
+    import RideComparisonTimeseries from "./charts/RideComparisonTimeseries.vue";
 
-    export enum GraphType {
-        DygraphTimeseries
+    export enum VisualizationMethod {
+        DayComparisonTimeseries,
+        RideComparisonTimeseries
     }
 
     export default Vue.extend({
-        components: {DygraphTimeseries},
-        props: ["historicData"],
+        components: {DayComparisonTimeseries, RideComparisonTimeseries},
+        props: {
+            "dataPackage": Array,
+            "selectedVisualizationMethod": VisualizationMethod
+        },
         data() {
             return {
-                graphType: GraphType.DygraphTimeseries
+                VisualizationMethod = VisualizationMethod
             }
         },
         methods: {

@@ -5,38 +5,52 @@
                 @updateConfig="updateConfig">
         </VisualizerConfiguration>
         <b-loading :is-full-page="true" :active="(isLoading > 0)" :can-cancel="false"></b-loading>
-        <Visualizer
-                ref="visualizer"
-                v-bind:historicData="historicData">
+        <Visualizer ref="visualizer"
+                    v-bind:selected-visualization-method="visualizationMethod"
+                    v-bind:data-package="dataPackage">
         </Visualizer>
     </section>
 </template>
 
 <script lang="ts">
-    import Vue from "vue";
-    import Visualizer from "./Visualizer.vue";
-    import VisualizerConfiguration from "./configuration/VisualizerConfiguration.vue";
-    import {Park} from "../data/Park";
-    import {Ride} from "../data/Ride";
-    import gql from "graphql-tag";
+import Vue from "vue";
+import Visualizer, {VisualizationMethod} from "./Visualizer.vue";
+import VisualizerConfiguration, {Config} from "./configuration/VisualizerConfiguration.vue";
+import gql from "graphql-tag";
 
-    export default Vue.extend({
+export default Vue.extend({
         data() {
             return {
-                historicData: [],
+                dayComparisonData: [],
+                rideComparisonData: [],
+                visualizationMethod: VisualizationMethod.DayComparisonTimeseries,
                 isLoading: 0,
-                historicConfig: null
+                configuration: null as unknown as Config
             }
         },
         methods: {
-            updateConfig(config: {startDate: string, endDate: string, interval: Interval, selectedPark: Park, selectedRides: Array<Ride>}) {
-                this.historicConfig = config;
+            updateConfig(config: Config) {
+                this.configuration = config;
             },
         },
+        computed: {
+            dataPackage() {
+                switch (this.visualizationMethod)
+                {
+                    case VisualizationMethod.DayComparisonTimeseries:
+                        return this.dayComparisonData;
+                    case VisualizationMethod.RideComparisonTimeseries:
+                        return this.rideComparisonData
+                    default:
+                        return null
+                }
+            }
+        },
         apollo: {
-            historicData: {
+            dayComparisonData: {
                 query: gql`query historicRideTimes ($rideId: RideId!, $start: DateTime!, $end: DateTime!, $interval: Interval!) {
-                                ride(id: $rideId) {
+                                    ride(id: $rideId) {
+                                        name
                                         layer1 {
                                             historicalWaitTime(start: $start, end: $end, interval: $interval) {
                                                 date
@@ -49,30 +63,31 @@
                                     }
                             }`,
                 update(data: any) {
-                    // The returned value will update
-                    // the vue property 'pingMessage'
-                    return data.ride.layer1.historicalWaitTime
+                    this.visualizationMethod = VisualizationMethod.DayComparisonTimeseries;
+                    return {
+                        name: data.ride.name,
+                        data: data.ride.layer1.historicalWaitTime
+                    }
                 },
                 variables(): any {
-                    // Use vue reactive properties here
                     return {
-                        rideId: this.historicConfig.selectedRides[0].id,
-                        start: this.historicConfig.startDate,
-                        end: this.historicConfig.endDate,
-                        interval: this.historicConfig.interval,
+                        rideId: this.configuration.selectedRides[0].id,
+                        start: this.configuration.startDate,
+                        end: this.configuration.endDate,
+                        interval: this.configuration.interval,
                     }
                 },
                 skip(): boolean {
-                    return !this.historicConfig || this.historicConfig.selectedRides.length > 1;
+                    return !this.configuration || this.configuration.selectedRides.length != 1;
                 },
                 loadingKey: 'isLoading'
             },
-            dayData: {
-                query: gql`query historicRideTimes ($rideId: RideId!, $start: DateTime!, $end: DateTime!, $interval: Interval!) {
-                                ride(id: $rideId) {
+            rideComparisonData: {
+                query: gql`query multiRide ($rideIds: [RideId]!, $start: DateTime!, $end: DateTime!, $interval: Interval!) {
+                                someRides(ids: $rideIds) {
+                                        name
                                         layer1 {
                                             historicalWaitTime(start: $start, end: $end, interval: $interval) {
-                                                date
                                                 waitTimes {
                                                     wait
                                                     time
@@ -82,21 +97,26 @@
                                     }
                             }`,
                 update(data: any) {
-                    // The returned value will update
-                    // the vue property 'pingMessage'
-                    return data.ride.layer1.historicalWaitTime
+                    this.visualizationMethod = VisualizationMethod.RideComparisonTimeseries;
+                    return {
+                        date: this.configuration.startDate,
+                        data: data.someRides.map(data => {
+                        return {
+                            name: data.name,
+                            waitTimes: data.layer1.historicalWaitTime[0].waitTimes
+                        }})
+                    }
                 },
                 variables(): any {
-                    // Use vue reactive properties here
                     return {
-                        rideId: this.historicConfig.selectedRides[0].id,
-                        start: this.historicConfig.startDate,
-                        end: this.historicConfig.endDate,
-                        interval: this.historicConfig.interval,
+                        rideIds: this.configuration.selectedRides.map(ride => ride.id),
+                        start: this.configuration.startDate,
+                        end: this.configuration.endDate,
+                        interval: this.configuration.interval,
                     }
                 },
                 skip(): boolean {
-                    return !this.historicConfig || this.historicConfig.selectedRides.length > 1;
+                    return !this.configuration || this.configuration.selectedRides.length < 2;
                 },
                 loadingKey: 'isLoading'
             }
