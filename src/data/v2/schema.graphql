@@ -46,7 +46,9 @@ type Layer1Data {
 
 type Query {
     parks: [Park],
+    someParks(ids: [ParkId]!): [Park],
     park(id: ParkId!): Park,
     rides: [Ride],
+    someRides(ids: [RideId]!): [Ride],
     ride(id: RideId!): Ride
 }
