@@ -37,17 +37,19 @@
                     </b-field>
                     <b-field label="Select Ride">
                         <b-dropdown
-                            v-model="selectedRide"
+                            v-model="selectedRides"
+                            multiple
                             aria-role="list"
                             :disabled="!('id' in selectedPark)"
                         >
-                            <button class="button is-primary" type="button" slot="trigger">
-                                <template>
+                            <template #trigger>
+                                <button class="button is-primary" type="button">
                                     <b-icon pack="fas" icon="map-marker-alt"></b-icon>
-                                    <span>{{ selectedRide.name }}</span>
-                                </template>
-                                <b-icon icon="menu-down"></b-icon>
-                            </button>
+                                    <span v-if="selectedRides.length === 1">{{ selectedRides[0].name }}</span>
+                                    <span v-else-if="selectedRides.length > 1">Selected {{ selectedRides.length }} Rides</span>
+                                    <b-icon icon="menu-down"></b-icon>
+                                </button>
+                            </template>
 
                             <b-dropdown-item
                                 v-for="ride in rides"
@@ -88,7 +90,7 @@ export default Vue.extend({
             parks: [],
             rides: [],
             selectedPark: {},
-            selectedRide: {},
+            selectedRides: [],
             selectorLoading: 0
         }
     },
@@ -119,7 +121,7 @@ export default Vue.extend({
             update(data: any) {
                 // The returned value will update
                 // the vue property 'pingMessage'
-                this.selectedRide = {};
+                this.selectedRides = [];
                 return data.park.rides
             },
             variables(): any {
@@ -135,7 +137,7 @@ export default Vue.extend({
         }
     },
     watch: {
-        selectedRide: {
+        selectedRides: {
             handler(value: any) {
                 this.$emit('rideSelected', value);
             }

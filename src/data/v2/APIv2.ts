@@ -1,18 +1,18 @@
-import ApolloClient from 'apollo-boost'
+import ApolloClient from "apollo-client";
 import {ApolloProvider} from "vue-apollo";
-
-enum Interval
-{
-    DAY = 'DAY',
-    WEEK = 'WEEK',
-    MONTH = 'MONTH',
-    YEAR = 'YEAR'
-}
+import {InMemoryCache} from "apollo-cache-inmemory";
+import {createHttpLink} from "apollo-link-http";
 
 const baseURL: string = 'https://tpwtp.com/api/v2';
 
+const httpLink = createHttpLink({
+    uri: baseURL,
+});
+
+const cache = new InMemoryCache();
 export const v2Client = new ApolloClient({
-    uri: baseURL
+    link: httpLink,
+    cache
 })
 
 export const v2Provider = new ApolloProvider({

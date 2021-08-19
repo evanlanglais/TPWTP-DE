@@ -21,7 +21,7 @@
                     <div class="tile is-child card">
                         <header class="card-header">
                             <p class="card-header-title is-centered">
-                                Ride Wait-Times
+                                Wait Times for {{ historicData.name }}
                             </p>
                         </header>
                         <div class="card-content">
@@ -52,16 +52,12 @@
 <script lang="ts">
     import Vue from 'vue'
     import { Dygraphs } from 'vue-dygraphs'
-    import {DayOfData} from "../../data/DayOfData";
-    import {DataPackage} from "../../data/DataPackage";
     import moment from "moment";
 
     export default Vue.extend({
         components: {Dygraphs},
         props: {
-            tpwtpData: {
-                type: Object as() => DataPackage
-            }
+            historicData: {}
         },
         data() {
             return {
@@ -121,25 +117,31 @@
                         },
                         y: {
                             axisLabelFormatter: minuteFormatter,
-                            valueFormatter: minuteFormatter
+                            valueFormatter: minuteFormatter,
+                            includeZero: true
                         }
                     }
                 }
             }
         },
         watch: {
-            'tpwtpData': {
-                handler(val: DataPackage) {
+            'historicData': {
+                immediate: true,
+                handler(dataPackage: {name: string, data: Array<any>}) {
+                    const data = dataPackage.data;
+                    // val is an array of objects
                     // 288 rows tall, each column for the number of days
-                    const dataMatrix = Array.from(Array(288), _ => Array(val.data.length).fill(null));
+                    const dataMatrix = Array.from(Array(288), _ => Array(data.length).fill(null));
                     let labelBuilder = ["Index"];
 
                     // Populate each datapoint for each day of data
                     let dayIndex = 0;
-                    for (const dayOfData of val.data) {
-                        labelBuilder.push(dayOfData.date.format('MMM Do'));
-                        for (const datapoint of dayOfData.dps) {
-                            dataMatrix[datapoint.t][dayIndex] = datapoint.y;
+                    for (let dayOfData of data) {
+                        labelBuilder.push(moment(dayOfData.date).format('ddd MMM Do'));
+                        let timeIndex = 0;
+                        for (let datapoint of dayOfData.waitTimes) {
+                            dataMatrix[timeIndex][dayIndex] = datapoint.wait;
+                            timeIndex++;
                         }
                         dayIndex++;
                     }
