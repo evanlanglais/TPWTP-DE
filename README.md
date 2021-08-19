@@ -1,4 +1,4 @@
-# Theme Park Wait Time Predictor - Data Explorer
+# Park Predictor - Data Explorer
 
 ## Project setup
 ```
