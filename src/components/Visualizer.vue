@@ -28,7 +28,7 @@
     export default Vue.extend({
         components: {DayComparisonTimeseries, RideComparisonTimeseries},
         props: {
-            "dataPackage": Array,
+            "dataPackage": Object,
             "selectedVisualizationMethod": VisualizationMethod
         },
         data() {

@@ -11,7 +11,8 @@ type Park {
     id: ParkId!,
     name: String!,
     location: Location
-    rides: [Ride]
+    rides: [Ride],
+    timezone: String
 }
 
 type Ride {

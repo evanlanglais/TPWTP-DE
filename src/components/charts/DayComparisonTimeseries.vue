@@ -53,6 +53,7 @@
     import Vue from 'vue'
     import { Dygraphs } from 'vue-dygraphs'
     import moment from "moment";
+    import { DateTime } from "luxon";
 
     export default Vue.extend({
         components: {Dygraphs},
@@ -127,7 +128,7 @@
         watch: {
             'historicData': {
                 immediate: true,
-                handler(dataPackage: {name: string, data: Array<any>}) {
+                handler(dataPackage: {name: string, data: Array<any>, timezone: string}) {
                     const data = dataPackage.data;
                     // val is an array of objects
                     // 288 rows tall, each column for the number of days
@@ -137,7 +138,7 @@
                     // Populate each datapoint for each day of data
                     let dayIndex = 0;
                     for (let dayOfData of data) {
-                        labelBuilder.push(moment(dayOfData.date).format('ddd MMM Do'));
+                        labelBuilder.push(DateTime.fromISO(dayOfData.date).setZone(dayOfData.timezone).toLocaleString({ weekday: 'short', month: 'long', day: '2-digit' }));
                         let timeIndex = 0;
                         for (let datapoint of dayOfData.waitTimes) {
                             dataMatrix[timeIndex][dayIndex] = datapoint.wait;

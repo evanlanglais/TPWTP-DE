@@ -53,6 +53,7 @@
     import Vue from 'vue'
     import { Dygraphs } from 'vue-dygraphs'
     import moment from "moment";
+    import {DateTime} from "luxon";
 
     export default Vue.extend({
         components: {Dygraphs},
@@ -76,11 +77,11 @@
         },
         computed: {
             dayString(): string {
-                return moment(this.historicData.date).format('ddd MMM Do');
+                return DateTime.fromJSDate(this.historicData.date).setZone(this.historicData.timezone).toLocaleString({ weekday: 'short', month: 'long', day: '2-digit' });
             },
             graphOptions: function () {
                 const timeOffsetFormatter = function(time_offset: number) {
-                    const base_moment = moment().startOf('day');
+                    const base_moment = DateTime.fromJSDate(this.historicData.date).setZone(this.historicData.timezone).startOf('day');
                     base_moment.add(time_offset * 5, 'm');
                     return base_moment.format("h:mm A");
                 };

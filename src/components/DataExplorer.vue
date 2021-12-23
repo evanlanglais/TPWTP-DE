@@ -17,12 +17,13 @@ import Vue from "vue";
 import Visualizer, {VisualizationMethod} from "./Visualizer.vue";
 import VisualizerConfiguration, {Config} from "./configuration/VisualizerConfiguration.vue";
 import gql from "graphql-tag";
+import { DateTime } from "luxon";
 
 export default Vue.extend({
         data() {
             return {
-                dayComparisonData: [],
-                rideComparisonData: [],
+                dayComparisonData: {},
+                rideComparisonData: {},
                 visualizationMethod: VisualizationMethod.DayComparisonTimeseries,
                 isLoading: 0,
                 configuration: null as unknown as Config
@@ -44,6 +45,9 @@ export default Vue.extend({
                     default:
                         return null
                 }
+            },
+            timezone() {
+                return this.configuration?.selectedPark.timezone ?? "utc";
             }
         },
         apollo: {
@@ -66,14 +70,15 @@ export default Vue.extend({
                     this.visualizationMethod = VisualizationMethod.DayComparisonTimeseries;
                     return {
                         name: data.ride.name,
-                        data: data.ride.layer1.historicalWaitTime
+                        data: data.ride.layer1.historicalWaitTime,
+                        timezone: this.timezone
                     }
                 },
                 variables(): any {
                     return {
                         rideId: this.configuration.selectedRides[0].id,
-                        start: this.configuration.startDate,
-                        end: this.configuration.endDate,
+                        start: DateTime.fromJSDate(this.configuration.startDate).setZone(this.timezone, {keepLocalTime: true}).toISO(),
+                        end: DateTime.fromJSDate(this.configuration.endDate).setZone(this.timezone, {keepLocalTime: true}).toISO(),
                         interval: this.configuration.interval,
                     }
                 },
@@ -104,14 +109,15 @@ export default Vue.extend({
                         return {
                             name: data.name,
                             waitTimes: data.layer1.historicalWaitTime[0].waitTimes
-                        }})
+                        }}),
+                        timezone: this.timezone
                     }
                 },
                 variables(): any {
                     return {
                         rideIds: this.configuration.selectedRides.map(ride => ride.id),
-                        start: this.configuration.startDate,
-                        end: this.configuration.endDate,
+                        start: DateTime.fromJSDate(this.configuration.startDate).setZone(this.timezone, {keepLocalTime: true}).toISO(),
+                        end: DateTime.fromJSDate(this.configuration.endDate).setZone(this.timezone, {keepLocalTime: true}).toISO(),
                         interval: this.configuration.interval,
                     }
                 },
