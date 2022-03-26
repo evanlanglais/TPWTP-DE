@@ -3,7 +3,7 @@ import {ApolloProvider} from "vue-apollo";
 import {InMemoryCache} from "apollo-cache-inmemory";
 import {createHttpLink} from "apollo-link-http";
 
-const baseURL: string = 'https://tpwtp.com/api/v2';
+const baseURL: string = 'https://park-predictor-api.azurewebsites.net/v2';
 
 const httpLink = createHttpLink({
     uri: baseURL,
