@@ -6,5 +6,14 @@ export default defineNuxtConfig({
   supabase: {
     redirect: false
   },
-  css: ['~/assets/css/main.css']
+  css: ['~/assets/css/main.css'],
+  nitro: {
+    azure: {
+      config: {
+        platform: {
+          apiRuntime: 'node:20'
+        }
+      }
+    }
+  }
 })
