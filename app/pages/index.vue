@@ -7,6 +7,7 @@ const selectedParkId = ref<string | null>(null)
 
 const { data: parks } = useParks()
 const { data: attractions, status, refresh } = useLiveWaitTimesWithVelocity(selectedParkId)
+const { data: crowdPressure, refresh: refreshPressure } = useCrowdPressure(selectedParkId)
 
 const selectedParkTimezone = computed(() => {
   if (!selectedParkId.value || !parks.value) return null
@@ -36,9 +37,14 @@ const longestWait = computed(() => {
   return waits.length ? Math.max(...waits) : 0
 })
 
-const trendingUpCount = computed(() =>
-  attractions.value?.filter(a => a.l2_wait_velocity?.[0]?.trend === 'RISING').length ?? 0
-)
+const pressureLabel = computed(() => {
+  if (!crowdPressure.value) return null
+  const ema = crowdPressure.value.pressure_ema
+  if (ema > 1) return { text: 'High', color: 'text-error' }
+  if (ema > 0.3) return { text: 'Moderate', color: 'text-warning' }
+  if (ema > -0.3) return { text: 'Normal', color: 'text-success' }
+  return { text: 'Low', color: 'text-info' }
+})
 
 const sortedAttractions = computed(() => {
   if (!attractions.value) return []
@@ -155,7 +161,7 @@ let refreshInterval: ReturnType<typeof setInterval> | null = null
 watch(selectedParkId, () => {
   if (refreshInterval) clearInterval(refreshInterval)
   if (selectedParkId.value) {
-    refreshInterval = setInterval(() => refresh(), 60000)
+    refreshInterval = setInterval(() => { refresh(); refreshPressure() }, 60000)
   }
 })
 
@@ -217,8 +223,12 @@ onUnmounted(() => {
           </UCard>
           <UCard>
             <div class="flex flex-col gap-1">
-              <span class="text-sm text-muted">Trending Up</span>
-              <span class="text-2xl font-bold text-error">{{ trendingUpCount }}</span>
+              <span class="text-sm text-muted">Crowd Pressure</span>
+              <template v-if="crowdPressure && pressureLabel">
+                <span class="text-2xl font-bold" :class="pressureLabel.color">{{ pressureLabel.text }}</span>
+                <TrendIndicator :trend="crowdPressure.trend" :velocity="crowdPressure.pressure_score" />
+              </template>
+              <span v-else class="text-2xl font-bold text-muted">&mdash;</span>
             </div>
           </UCard>
         </div>

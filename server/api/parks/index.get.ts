@@ -6,7 +6,7 @@ export default defineEventHandler(async (event) => {
 
   let query = client
     .from('parks')
-    .select('id, name, timezone, destination_id, destinations(name), attractions(id)')
+    .select('id, name, timezone, destination_id, destinations(name), attractions!attractions_park_id_fkey(id)')
     .order('name')
 
   if (destinationId) {
