@@ -1,18 +1,21 @@
 <script setup lang="ts">
-import { format, subDays } from 'date-fns'
-
 const route = useRoute()
 const router = useRouter()
 
 const parkId = computed(() => route.params.id as string)
 const attractionId = computed(() => route.params.attractionId as string)
 
-// Read initial state from query params
+function todayInTimezone(timezone?: string | null): string {
+  return new Date().toLocaleDateString('en-CA', timezone ? { timeZone: timezone } : undefined)
+}
+
+// Read initial state from query params — default to today (local time until park tz loads)
+const hasQueryDates = !!(route.query.startDate || route.query.endDate)
 const startDate = ref<string>(
-  (route.query.startDate as string) || format(subDays(new Date(), 1), 'yyyy-MM-dd')
+  (route.query.startDate as string) || todayInTimezone()
 )
 const endDate = ref<string>(
-  (route.query.endDate as string) || format(new Date(), 'yyyy-MM-dd')
+  (route.query.endDate as string) || todayInTimezone()
 )
 const compareIds = ref<string[]>(
   route.query.compare
@@ -42,6 +45,15 @@ const currentVelocity = computed(() => currentAttraction.value?.l2_wait_velocity
 
 // Timezone handling
 const parkTimezone = computed(() => park.value?.timezone ?? null)
+
+// Correct default dates to park timezone once loaded
+watch(parkTimezone, (tz) => {
+  if (tz && !hasQueryDates) {
+    const today = todayInTimezone(tz)
+    startDate.value = today
+    endDate.value = today
+  }
+}, { once: true })
 
 function getTimezoneOffset(timezone: string, refDate: Date): number {
   const utc = new Date(refDate.toLocaleString('en-US', { timeZone: 'UTC' }))
@@ -149,12 +161,20 @@ const maxWait = computed(() => {
 const maxVelocity = computed(() => {
   if (!velocityData.value?.length) return 0
   const vels = velocityData.value
-    .filter(v => v.velocity != null)
-    .map(v => Math.abs(v.velocity!))
+    .filter(v => v.velocity_ema != null)
+    .map(v => Math.abs(v.velocity_ema!))
   return vels.length ? Math.round(Math.max(...vels)) : 0
 })
 
 const dataPointCount = computed(() => waitTimes.value?.length ?? 0)
+
+const chartXDomain = computed<[number, number] | undefined>(() => {
+  if (!startDateISO.value || !endDateISO.value) return undefined
+  return [
+    new Date(startDateISO.value).getTime(),
+    new Date(endDateISO.value).getTime()
+  ]
+})
 </script>
 
 <template>
@@ -207,7 +227,7 @@ const dataPointCount = computed(() => waitTimes.value?.length ?? 0)
             />
             <TrendIndicator
               :trend="currentVelocity?.trend ?? null"
-              :velocity="currentVelocity?.velocity ?? null"
+              :velocity="currentVelocity?.velocity_ema ?? null"
             />
           </div>
         </div>
@@ -230,6 +250,7 @@ const dataPointCount = computed(() => waitTimes.value?.length ?? 0)
             :timezone="parkTimezone"
             :velocity-data="velocityData ?? []"
             :transitions="transitionData ?? []"
+            :x-domain="chartXDomain"
           />
         </UCard>
 

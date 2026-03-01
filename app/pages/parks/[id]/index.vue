@@ -25,6 +25,8 @@ const impactTransitionIds = computed(() => {
 
 const { data: transitionImpacts } = useTransitionImpacts(parkId, impactTransitionIds)
 
+const parkTimezone = computed(() => park.value?.timezone ?? undefined)
+
 const breadcrumbItems = computed(() => [
   { label: 'Home', icon: 'i-lucide-home', to: '/' },
   { label: park.value?.name ?? 'Park' }
@@ -164,7 +166,7 @@ const columns: TableColumn<AttractionWithLatestWaitAndVelocity>[] = [
       if (!vel || row.original.wait_times[0]?.status !== 'OPERATING') {
         return h(TrendIndicatorComp, { trend: null, velocity: null })
       }
-      return h(TrendIndicatorComp, { trend: vel.trend, velocity: vel.velocity })
+      return h(TrendIndicatorComp, { trend: vel.trend, velocity: vel.velocity_ema })
     }
   }
 ]
@@ -177,14 +179,16 @@ function formatTransitionTime(timestamp: string) {
   return new Date(timestamp).toLocaleTimeString('en-US', {
     hour: '2-digit',
     minute: '2-digit',
-    hour12: true
+    hour12: true,
+    timeZone: parkTimezone.value
   })
 }
 
 function formatTransitionDate(timestamp: string) {
   return new Date(timestamp).toLocaleDateString('en-US', {
     month: 'short',
-    day: 'numeric'
+    day: 'numeric',
+    timeZone: parkTimezone.value
   })
 }
 </script>
@@ -237,7 +241,7 @@ function formatTransitionDate(timestamp: string) {
               </span>
               <template v-if="crowdPressure && pressureLabel">
                 <span class="text-2xl font-bold" :class="pressureLabel.color">{{ pressureLabel.text }}</span>
-                <TrendIndicator :trend="crowdPressure.trend" :velocity="crowdPressure.pressure_score" />
+                <TrendIndicator :trend="crowdPressure.trend" :velocity="crowdPressure.pressure_ema" />
               </template>
               <span v-else class="text-2xl font-bold text-muted">&mdash;</span>
             </div>
@@ -285,9 +289,9 @@ function formatTransitionDate(timestamp: string) {
                 <h3 class="text-lg font-semibold">Correlation Pairs</h3>
               </div>
               <span v-if="correlationWindow" class="text-sm text-muted">
-                {{ new Date(correlationWindow.start).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) }}
+                {{ new Date(correlationWindow.start).toLocaleDateString('en-US', { month: 'short', day: 'numeric', timeZone: parkTimezone }) }}
                 &ndash;
-                {{ new Date(correlationWindow.end).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) }}
+                {{ new Date(correlationWindow.end).toLocaleDateString('en-US', { month: 'short', day: 'numeric', timeZone: parkTimezone }) }}
               </span>
             </div>
           </template>

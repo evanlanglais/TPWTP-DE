@@ -8,6 +8,7 @@ const props = defineProps<{
   timezone?: string | null
   velocityData?: WaitVelocity[]
   transitions?: (StatusTransition & { attraction_name: string })[]
+  xDomain?: [number, number]
 }>()
 
 const colors = ['#22c55e', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#14b8a6', '#f97316']
@@ -165,7 +166,7 @@ const hasReopenings = computed(() => transitionMarkers.value.some(m => !m.isClos
 
 <template>
   <div v-if="chartData.length" class="w-full h-[400px]">
-    <VisXYContainer :data="chartData" :yDomain="[0, undefined]" :margin="{ top: 10, right: 10, bottom: 40, left: 50 }">
+    <VisXYContainer :data="chartData" :yDomain="[0, undefined]" :xDomain="xDomain" :margin="{ top: 10, right: 10, bottom: 40, left: 50 }">
       <!-- Dashed bridge lines (behind solid, interpolates through gaps) -->
       <VisLine
         v-for="(yFn, i) in yAccessors"
