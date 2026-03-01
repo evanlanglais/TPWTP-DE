@@ -87,6 +87,12 @@ const { data: velocityData } = useHistoricVelocity(
   endDateISO
 )
 
+const { data: transitionData } = useHistoricTransitions(
+  selectedAttractionIds,
+  startDateISO,
+  endDateISO
+)
+
 // Reset attractions when park changes
 watch(selectedParkId, () => {
   selectedAttractionIds.value = []
@@ -180,6 +186,7 @@ const dataPointCount = computed(() => waitTimes.value?.length ?? 0)
             :attraction-names="attractionNames"
             :timezone="selectedParkTimezone"
             :velocity-data="velocityData ?? []"
+            :transitions="transitionData ?? []"
           />
         </UCard>
 

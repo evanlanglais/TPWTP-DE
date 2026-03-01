@@ -1,12 +1,13 @@
 <script setup lang="ts">
-import { VisXYContainer, VisLine, VisAxis, VisCrosshair, VisTooltip } from '@unovis/vue'
-import type { WaitTime, WaitVelocity } from '~/types'
+import { VisXYContainer, VisLine, VisAxis, VisCrosshair, VisTooltip, VisPlotline } from '@unovis/vue'
+import type { WaitTime, WaitVelocity, StatusTransition } from '~/types'
 
 const props = defineProps<{
   data: WaitTime[]
   attractionNames: Record<string, string>
   timezone?: string | null
   velocityData?: WaitVelocity[]
+  transitions?: (StatusTransition & { attraction_name: string })[]
 }>()
 
 const colors = ['#22c55e', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#14b8a6', '#f97316']
@@ -137,6 +138,29 @@ function tooltipTemplate(d: ChartPoint) {
   }
   return html
 }
+
+type TransitionMarker = {
+  timestamp: number
+  label: string
+  color: string
+  isClosure: boolean
+}
+
+const transitionMarkers = computed<TransitionMarker[]>(() => {
+  if (!props.transitions?.length) return []
+  return props.transitions.map((t) => {
+    const isClosure = t.new_status !== 'OPERATING'
+    return {
+      timestamp: new Date(t.transition_time).getTime(),
+      label: `${t.attraction_name} ${isClosure ? '\u25BC' : '\u25B2'}`,
+      color: isClosure ? '#ef4444' : '#22c55e',
+      isClosure
+    }
+  })
+})
+
+const hasClosures = computed(() => transitionMarkers.value.some(m => m.isClosure))
+const hasReopenings = computed(() => transitionMarkers.value.some(m => !m.isClosure))
 </script>
 
 <template>
@@ -171,6 +195,20 @@ function tooltipTemplate(d: ChartPoint) {
         label="Time"
       />
       <VisAxis type="y" label="Wait (min)" />
+      <VisPlotline
+        v-for="(marker, i) in transitionMarkers"
+        :key="`transition-${i}`"
+        axis="x"
+        :value="marker.timestamp"
+        :color="marker.color"
+        :lineStyle="[6, 4]"
+        :lineWidth="1"
+        :labelText="marker.label"
+        labelOrientation="vertical"
+        labelPosition="top"
+        :labelColor="marker.color"
+        :labelSize="10"
+      />
       <VisCrosshair :template="tooltipTemplate" />
       <VisTooltip />
     </VisXYContainer>
@@ -184,6 +222,14 @@ function tooltipTemplate(d: ChartPoint) {
       >
         <span class="inline-block w-3 h-3 rounded-full" :style="{ background: colors[i % colors.length] }" />
         <span>{{ attractionNames[id] || id.slice(0, 8) }}</span>
+      </div>
+      <div v-if="hasClosures" class="flex items-center gap-2 text-sm">
+        <span class="inline-block w-3 border-l-2 border-dashed h-3" style="border-color: #ef4444" />
+        <span class="text-[#ef4444]">Closure</span>
+      </div>
+      <div v-if="hasReopenings" class="flex items-center gap-2 text-sm">
+        <span class="inline-block w-3 border-l-2 border-dashed h-3" style="border-color: #22c55e" />
+        <span class="text-[#22c55e]">Reopening</span>
       </div>
     </div>
   </div>

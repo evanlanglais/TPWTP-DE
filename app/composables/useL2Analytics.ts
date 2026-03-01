@@ -45,3 +45,25 @@ export function useHistoricVelocity(
     { watch: [attractionIds, startDate, endDate] }
   )
 }
+
+export function useHistoricTransitions(
+  attractionIds: Ref<string[]>,
+  startDate: Ref<string | null>,
+  endDate: Ref<string | null>
+) {
+  return useAsyncData(
+    () => `historic-transitions-${attractionIds.value.join(',')}-${startDate.value}-${endDate.value}`,
+    () => {
+      if (!attractionIds.value.length || !startDate.value || !endDate.value) return null
+
+      return $fetch<(StatusTransition & { attraction_name: string })[]>('/api/transitions', {
+        query: {
+          attractionIds: attractionIds.value.join(','),
+          startDate: startDate.value,
+          endDate: endDate.value
+        }
+      })
+    },
+    { watch: [attractionIds, startDate, endDate] }
+  )
+}
