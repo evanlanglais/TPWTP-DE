@@ -1,71 +1,29 @@
 {
-  "name": "pp-de",
-  "version": "0.1.0",
+  "name": "TPWTP-DE",
   "private": true,
+  "type": "module",
   "scripts": {
-    "dev": "parcel index.html",
-    "build": "parcel build index.html --out-dir dist --public-url ./",
-    "prebuild": "rimraf dist",
-    "lint": "vue-cli-service lint"
+    "build": "nuxt build",
+    "dev": "nuxt dev",
+    "generate": "nuxt generate",
+    "preview": "nuxt preview",
+    "postinstall": "nuxt prepare"
   },
   "dependencies": {
-    "apollo-cache-inmemory": "^1.6.6",
-    "apollo-client": "^2.6.10",
-    "apollo-link": "^1.2.14",
-    "apollo-link-http": "^1.5.17",
-    "assets": "^3.0.1",
-    "axios": "^0.21.1",
-    "buefy": "^0.8.20",
-    "chart.js": "^2.9.4",
-    "core-js": "^3.8.3",
-    "graphql": "^15.5.0",
-    "graphql-tag": "^2.11.0",
-    "graphql-type-json": "^0.2.1",
-    "moment": "^2.29.1",
-    "vue": "^2.6.12",
-    "vue-apollo": "^3.0.5",
-    "vue-chartjs": "^3.5.1",
-    "vue-class-component": "^7.2.6",
-    "vue-dygraphs": "^0.1.2",
-    "vue-property-decorator": "^8.5.1"
+    "@internationalized/date": "^3.11.0",
+    "@nuxt/eslint": "^1.15.2",
+    "@nuxt/ui": "^4.5.0",
+    "@nuxtjs/supabase": "^2.0.4",
+    "@tanstack/vue-table": "^8.21.3",
+    "@unovis/ts": "^1.6.4",
+    "@unovis/vue": "^1.6.4",
+    "@vueuse/nuxt": "^14.2.1",
+    "date-fns": "^4.1.0",
+    "nuxt": "^4.3.1",
+    "vue": "^3.5.29"
   },
   "devDependencies": {
-    "@vue/cli-plugin-babel": "^4.5.11",
-    "@vue/cli-plugin-eslint": "^4.5.11",
-    "@vue/cli-plugin-typescript": "^4.5.11",
-    "@vue/cli-service": "^4.5.11",
-    "@vue/eslint-config-typescript": "^4.0.0",
-    "babel-eslint": "^10.1.0",
-    "eslint": "^5.16.0",
-    "eslint-plugin-graphql": "^4.0.0",
-    "eslint-plugin-vue": "^5.0.0",
-    "parcel": "^1.12.4",
-    "rimraf": "^3.0.2",
-    "typescript": "^3.9.7",
-    "vue-cli-plugin-apollo": "~0.22.2",
-    "vue-template-compiler": "^2.6.12"
-  },
-  "resolutions": {
-    "browserslist": "4.14.2",
-    "caniuse-lite": "1.0.30001129"
-  },
-  "eslintConfig": {
-    "root": true,
-    "env": {
-      "node": true
-    },
-    "extends": [
-      "plugin:vue/essential",
-      "eslint:recommended",
-      "@vue/typescript"
-    ],
-    "rules": {},
-    "parserOptions": {
-      "parser": "@typescript-eslint/parser"
-    }
-  },
-  "browserslist": [
-    "> 1%",
-    "last 2 versions"
-  ]
+    "@iconify-json/lucide": "^1.2.95",
+    "@iconify-json/simple-icons": "^1.2.71"
+  }
 }
