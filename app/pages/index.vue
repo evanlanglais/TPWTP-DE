@@ -1,9 +1,17 @@
 <script setup lang="ts">
 import type { ParkSummary } from '~/types'
 
-const { data: parks, status } = useParksSummary()
+const { data: parks, status, refresh: refreshParks } = useParksSummary()
 
 const router = useRouter()
+
+// Auto-refresh
+const autoRefresh = ref(true)
+
+useIntervalFn(() => {
+  if (!autoRefresh.value) return
+  refreshParks()
+}, 5 * 60 * 1000)
 
 function pressureLabel(park: ParkSummary) {
   if (!park.crowd_pressure) return null
@@ -23,7 +31,11 @@ function operatingLabel(park: ParkSummary) {
 <template>
   <UDashboardPanel>
     <template #header>
-      <UDashboardNavbar title="Parks" icon="i-lucide-ferris-wheel" />
+      <UDashboardNavbar title="Parks" icon="i-lucide-ferris-wheel">
+        <template #right>
+          <USwitch v-model="autoRefresh" label="Auto-refresh" size="xs" />
+        </template>
+      </UDashboardNavbar>
     </template>
 
     <template #body>

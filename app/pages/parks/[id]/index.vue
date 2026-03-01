@@ -8,10 +8,10 @@ const router = useRouter()
 const parkId = computed(() => route.params.id as string)
 
 const { data: park } = usePark(parkId)
-const { data: attractions, status } = useLiveWaitTimesWithVelocity(parkId)
-const { data: transitions } = useRecentTransitions(parkId)
-const { data: crowdPressure } = useCrowdPressure(parkId)
-const { data: correlationPairs } = useCorrelationPairs(parkId)
+const { data: attractions, status, refresh: refreshAttractions } = useLiveWaitTimesWithVelocity(parkId)
+const { data: transitions, refresh: refreshTransitions } = useRecentTransitions(parkId)
+const { data: crowdPressure, refresh: refreshPressure } = useCrowdPressure(parkId)
+const { data: correlationPairs, refresh: refreshCorrelations } = useCorrelationPairs(parkId)
 
 const impactTransitionIds = computed(() => {
   if (!transitions.value) return []
@@ -23,7 +23,19 @@ const impactTransitionIds = computed(() => {
     .map(t => t.id)
 })
 
-const { data: transitionImpacts } = useTransitionImpacts(parkId, impactTransitionIds)
+const { data: transitionImpacts, refresh: refreshImpacts } = useTransitionImpacts(parkId, impactTransitionIds)
+
+// Auto-refresh
+const autoRefresh = ref(true)
+
+useIntervalFn(() => {
+  if (!autoRefresh.value) return
+  refreshAttractions()
+  refreshTransitions()
+  refreshPressure()
+  refreshCorrelations()
+  refreshImpacts()
+}, 5 * 60 * 1000)
 
 const parkTimezone = computed(() => park.value?.timezone ?? undefined)
 
@@ -199,6 +211,9 @@ function formatTransitionDate(timestamp: string) {
       <UDashboardNavbar>
         <template #left>
           <UBreadcrumb :items="breadcrumbItems" />
+        </template>
+        <template #right>
+          <USwitch v-model="autoRefresh" label="Auto-refresh" size="xs" />
         </template>
       </UDashboardNavbar>
     </template>

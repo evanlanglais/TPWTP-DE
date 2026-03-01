@@ -32,7 +32,7 @@ const allAttractionIds = computed(() => {
 // Data fetching
 const { data: park } = usePark(parkId)
 const { data: attractionsList } = useAttractions(parkId)
-const { data: liveData } = useLiveWaitTimesWithVelocity(parkId)
+const { data: liveData, refresh: refreshLive } = useLiveWaitTimesWithVelocity(parkId)
 
 // Current attraction live info
 const currentAttraction = computed(() => {
@@ -93,9 +93,9 @@ const endDateISO = computed(() => {
 })
 
 // Historic data
-const { data: waitTimes, status } = useHistoricWaitTimes(allAttractionIds, startDateISO, endDateISO)
-const { data: velocityData } = useHistoricVelocity(allAttractionIds, startDateISO, endDateISO)
-const { data: transitionData } = useHistoricTransitions(allAttractionIds, startDateISO, endDateISO)
+const { data: waitTimes, status, refresh: refreshWaitTimes } = useHistoricWaitTimes(allAttractionIds, startDateISO, endDateISO)
+const { data: velocityData, refresh: refreshVelocity } = useHistoricVelocity(allAttractionIds, startDateISO, endDateISO)
+const { data: transitionData, refresh: refreshTransitions } = useHistoricTransitions(allAttractionIds, startDateISO, endDateISO)
 
 // Attraction name lookup
 const attractionNames = computed(() => {
@@ -173,6 +173,17 @@ const chartXDomain = computed<[number, number] | undefined>(() => {
     new Date(endDateISO.value).getTime()
   ]
 })
+
+// Auto-refresh
+const autoRefresh = ref(true)
+
+useIntervalFn(() => {
+  if (!autoRefresh.value) return
+  refreshLive()
+  refreshWaitTimes()
+  refreshVelocity()
+  refreshTransitions()
+}, 5 * 60 * 1000)
 </script>
 
 <template>
@@ -184,6 +195,7 @@ const chartXDomain = computed<[number, number] | undefined>(() => {
         </template>
         <template #right>
           <div class="flex items-center gap-2">
+            <USwitch v-model="autoRefresh" label="Auto-refresh" size="xs" />
             <USelectMenu
               v-model="compareIds"
               :items="compareItems"
