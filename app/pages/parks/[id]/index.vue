@@ -4,7 +4,6 @@ import type { TableColumn } from '@nuxt/ui'
 import type { AttractionWithLatestWaitAndVelocity } from '~/types'
 
 const route = useRoute()
-const router = useRouter()
 const parkId = computed(() => route.params.id as string)
 
 const { data: park } = usePark(parkId)
@@ -77,8 +76,8 @@ const negativeCorrelations = computed(() =>
 )
 
 const correlationWindow = computed(() => {
-  if (!correlationPairs.value?.length) return null
-  const first = correlationPairs.value[0]
+  const first = correlationPairs.value?.[0]
+  if (!first) return null
   return { start: first.window_start, end: first.window_end }
 })
 
@@ -89,9 +88,9 @@ const operatingCount = computed(() =>
 )
 
 const avgWait = computed(() => {
-  const waits = attractions.value
-    ?.filter(a => a.wait_times[0]?.status === 'OPERATING' && a.wait_times[0]?.standby_wait != null)
-    .map(a => a.wait_times[0].standby_wait!) ?? []
+  const waits = (attractions.value ?? [])
+    .filter(a => a.wait_times[0]?.status === 'OPERATING' && a.wait_times[0]?.standby_wait != null)
+    .map(a => a.wait_times[0]!.standby_wait!)
   if (!waits.length) return 0
   return Math.round(waits.reduce((a, b) => a + b, 0) / waits.length)
 })
@@ -100,7 +99,7 @@ const busiestRide = computed(() => {
   if (!attractions.value?.length) return '\u2014'
   const sorted = [...attractions.value]
     .filter(a => a.wait_times[0]?.standby_wait != null)
-    .sort((a, b) => (b.wait_times[0].standby_wait ?? 0) - (a.wait_times[0].standby_wait ?? 0))
+    .sort((a, b) => (b.wait_times[0]!.standby_wait ?? 0) - (a.wait_times[0]!.standby_wait ?? 0))
   return sorted[0]?.name ?? '\u2014'
 })
 
@@ -125,11 +124,23 @@ const sortedAttractions = computed(() => {
 
 const UBadge = resolveComponent('UBadge')
 const TrendIndicatorComp = resolveComponent('TrendIndicator')
+const NuxtLink = resolveComponent('NuxtLink')
+const UIcon = resolveComponent('UIcon')
+
+function attractionUrl(id: string) {
+  return `/parks/${parkId.value}/attractions/${id}`
+}
 
 const columns: TableColumn<AttractionWithLatestWaitAndVelocity>[] = [
   {
     accessorKey: 'name',
-    header: 'Attraction'
+    header: 'Attraction',
+    cell: ({ row }) => {
+      return h(NuxtLink, {
+        to: attractionUrl(row.original.id),
+        class: 'text-primary hover:underline font-medium'
+      }, () => row.original.name)
+    }
   },
   {
     id: 'status',
@@ -180,12 +191,18 @@ const columns: TableColumn<AttractionWithLatestWaitAndVelocity>[] = [
       }
       return h(TrendIndicatorComp, { trend: vel.trend, velocity: vel.velocity_ema })
     }
+  },
+  {
+    id: 'navigate',
+    header: '',
+    cell: ({ row }) => {
+      return h(NuxtLink, {
+        to: attractionUrl(row.original.id),
+        class: 'flex items-center justify-center p-2 -m-2'
+      }, () => h(UIcon, { name: 'i-lucide-chevron-right', class: 'size-4 text-muted' }))
+    }
   }
 ]
-
-function onRowClick(_e: Event, row: any) {
-  router.push(`/parks/${parkId.value}/attractions/${row.original.id}`)
-}
 
 function formatTransitionTime(timestamp: string) {
   return new Date(timestamp).toLocaleTimeString('en-US', {
@@ -291,8 +308,6 @@ function formatTransitionDate(timestamp: string) {
           :columns="columns"
           :loading="status === 'pending'"
           sticky
-          class="cursor-pointer"
-          @select="onRowClick"
         />
 
         <!-- Correlation Pairs -->
