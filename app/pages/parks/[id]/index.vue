@@ -229,7 +229,12 @@ function formatTransitionDate(timestamp: string) {
           </UCard>
           <UCard>
             <div class="flex flex-col gap-1">
-              <span class="text-sm text-muted">Crowd Pressure</span>
+              <span class="text-sm text-muted flex items-center gap-1">
+                Crowd Pressure
+                <UTooltip text="Measures how fast wait times are rising across the park. Based on a smoothed average of ride wait-time velocities — High means waits are climbing quickly, Low means they're dropping.">
+                  <UIcon name="i-lucide-info" class="size-3.5 text-muted" />
+                </UTooltip>
+              </span>
               <template v-if="crowdPressure && pressureLabel">
                 <span class="text-2xl font-bold" :class="pressureLabel.color">{{ pressureLabel.text }}</span>
                 <TrendIndicator :trend="crowdPressure.trend" :velocity="crowdPressure.pressure_score" />
