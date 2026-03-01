@@ -83,15 +83,13 @@ const timezoneShort = computed(() => {
 })
 
 const startDateISO = computed(() => {
-  if (!startDate.value) return null
-  if (parkTimezone.value) return parkTimeToUTC(startDate.value, '00:00:00', parkTimezone.value)
-  return `${startDate.value}T00:00:00Z`
+  if (!startDate.value || !parkTimezone.value) return null
+  return parkTimeToUTC(startDate.value, '00:00:00', parkTimezone.value)
 })
 
 const endDateISO = computed(() => {
-  if (!endDate.value) return null
-  if (parkTimezone.value) return parkTimeToUTC(endDate.value, '23:59:59', parkTimezone.value)
-  return `${endDate.value}T23:59:59Z`
+  if (!endDate.value || !parkTimezone.value) return null
+  return parkTimeToUTC(endDate.value, '23:59:59', parkTimezone.value)
 })
 
 // Historic data
