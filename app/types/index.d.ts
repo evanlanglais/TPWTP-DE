@@ -100,6 +100,20 @@ export interface TransitionImpactWithNames {
   impacted_attraction_name: string
 }
 
+export interface ParkSummary {
+  id: string
+  name: string
+  timezone: string
+  destination_name: string
+  attraction_count: number
+  crowd_pressure: {
+    pressure_ema: number
+    trend: PressureTrend
+    operating_count: number
+    avg_wait: number
+  } | null
+}
+
 export interface CorrelationPairWithNames {
   park_id: string
   attraction_a: string

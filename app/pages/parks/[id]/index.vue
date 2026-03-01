@@ -2,9 +2,9 @@
 import { h, resolveComponent } from 'vue'
 import type { TableColumn } from '@nuxt/ui'
 import type { AttractionWithLatestWaitAndVelocity } from '~/types'
-import { format, subDays } from 'date-fns'
 
 const route = useRoute()
+const router = useRouter()
 const parkId = computed(() => route.params.id as string)
 
 const { data: park } = usePark(parkId)
@@ -25,6 +25,11 @@ const impactTransitionIds = computed(() => {
 
 const { data: transitionImpacts } = useTransitionImpacts(parkId, impactTransitionIds)
 
+const breadcrumbItems = computed(() => [
+  { label: 'Home', icon: 'i-lucide-home', to: '/' },
+  { label: park.value?.name ?? 'Park' }
+])
+
 const pressureLabel = computed(() => {
   if (!crowdPressure.value) return null
   const ema = crowdPressure.value.pressure_ema
@@ -43,7 +48,6 @@ const impactsByTransition = computed(() => {
     arr.push(impact)
     map.set(impact.transition_id, arr)
   }
-  // Limit to 5 per transition
   for (const [key, arr] of map) {
     map.set(key, arr.slice(0, 5))
   }
@@ -106,9 +110,7 @@ const sortedAttractions = computed(() => {
 })
 
 const UBadge = resolveComponent('UBadge')
-const UButton = resolveComponent('UButton')
 const TrendIndicatorComp = resolveComponent('TrendIndicator')
-const StatusBadgeComp = resolveComponent('StatusBadge')
 
 const columns: TableColumn<AttractionWithLatestWaitAndVelocity>[] = [
   {
@@ -164,23 +166,12 @@ const columns: TableColumn<AttractionWithLatestWaitAndVelocity>[] = [
       }
       return h(TrendIndicatorComp, { trend: vel.trend, velocity: vel.velocity })
     }
-  },
-  {
-    id: 'explore',
-    header: '',
-    cell: ({ row }) => {
-      const yesterday = format(subDays(new Date(), 1), 'yyyy-MM-dd')
-      const today = format(new Date(), 'yyyy-MM-dd')
-      return h(UButton, {
-        icon: 'i-lucide-chart-line',
-        color: 'neutral',
-        variant: 'ghost',
-        size: 'xs',
-        to: `/explorer?parkId=${parkId.value}&attractionIds=${row.original.id}&startDate=${yesterday}&endDate=${today}`
-      })
-    }
   }
 ]
+
+function onRowClick(_e: Event, row: any) {
+  router.push(`/parks/${parkId.value}/attractions/${row.original.id}`)
+}
 
 function formatTransitionTime(timestamp: string) {
   return new Date(timestamp).toLocaleTimeString('en-US', {
@@ -201,14 +192,9 @@ function formatTransitionDate(timestamp: string) {
 <template>
   <UDashboardPanel>
     <template #header>
-      <UDashboardNavbar :title="park?.name ?? 'Park'" icon="i-lucide-map-pin">
-        <template #leading>
-          <UButton
-            icon="i-lucide-arrow-left"
-            color="neutral"
-            variant="ghost"
-            to="/parks"
-          />
+      <UDashboardNavbar>
+        <template #left>
+          <UBreadcrumb :items="breadcrumbItems" />
         </template>
       </UDashboardNavbar>
     </template>
@@ -281,6 +267,8 @@ function formatTransitionDate(timestamp: string) {
           :columns="columns"
           :loading="status === 'pending'"
           sticky
+          class="cursor-pointer"
+          @select="onRowClick"
         />
 
         <!-- Correlation Pairs -->

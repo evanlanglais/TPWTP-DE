@@ -1,4 +1,4 @@
-import type { Destination, Park, Attraction } from '~/types'
+import type { Destination, Park, Attraction, ParkSummary } from '~/types'
 
 export function useDestinations() {
   return useFetch<(Destination & { park_count: number })[]>('/api/destinations')
@@ -17,6 +17,10 @@ export function usePark(parkId: Ref<string>) {
   return useFetch<Park & { destinations: { name: string } }>(() => `/api/parks/${parkId.value}`, {
     watch: [parkId]
   })
+}
+
+export function useParksSummary() {
+  return useFetch<ParkSummary[]>('/api/parks/summary')
 }
 
 export function useAttractions(parkId: Ref<string>) {
