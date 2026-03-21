@@ -8,6 +8,7 @@ export default defineNuxtConfig({
   },
   css: ['~/assets/css/main.css'],
   nitro: {
+    compressPublicAssets: true,
     azure: {
       config: {
         platform: {
