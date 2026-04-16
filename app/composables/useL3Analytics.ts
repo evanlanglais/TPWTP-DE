@@ -5,7 +5,7 @@ export function useCrowdPressure(parkId: Ref<string | null>) {
     () => `crowd-pressure-${parkId.value}`,
     () => {
       if (!parkId.value) return null
-      return $fetch<CrowdPressure | null>(`/api/parks/${parkId.value}/crowd-pressure`)
+      return $fetch<CrowdPressure | null>(`/api/parks/${parkId.value}/l3/crowd-pressure`)
     },
     { watch: [parkId] }
   )
@@ -20,7 +20,7 @@ export function useTransitionImpacts(parkId: Ref<string | null>, transitionIds?:
       if (transitionIds?.value?.length) {
         query.transitionIds = transitionIds.value.join(',')
       }
-      return $fetch<TransitionImpactWithNames[]>(`/api/parks/${parkId.value}/closure-impacts`, { query })
+      return $fetch<TransitionImpactWithNames[]>(`/api/parks/${parkId.value}/l3/crowd-flow`, { query })
     },
     { watch: transitionIds ? [parkId, transitionIds] : [parkId] }
   )
@@ -31,7 +31,7 @@ export function useCorrelationPairs(parkId: Ref<string | null>) {
     () => `correlations-${parkId.value}`,
     () => {
       if (!parkId.value) return null
-      return $fetch<CorrelationPairWithNames[]>(`/api/parks/${parkId.value}/correlations`)
+      return $fetch<CorrelationPairWithNames[]>(`/api/parks/${parkId.value}/l3/correlations`)
     },
     { watch: [parkId] }
   )

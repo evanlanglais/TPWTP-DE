@@ -93,9 +93,9 @@ const endDateISO = computed(() => {
 })
 
 // Historic data
-const { data: waitTimes, status, refresh: refreshWaitTimes } = useHistoricWaitTimes(allAttractionIds, startDateISO, endDateISO)
-const { data: velocityData, refresh: refreshVelocity } = useHistoricVelocity(allAttractionIds, startDateISO, endDateISO)
-const { data: transitionData, refresh: refreshTransitions } = useHistoricTransitions(allAttractionIds, startDateISO, endDateISO)
+const { data: waitTimes, status, refresh: refreshWaitTimes } = useHistoricWaitTimes(parkId, allAttractionIds, startDateISO, endDateISO)
+const { data: velocityData, refresh: refreshVelocity } = useHistoricVelocity(parkId, allAttractionIds, startDateISO, endDateISO)
+const { data: transitionData, refresh: refreshTransitions } = useHistoricTransitions(parkId, allAttractionIds, startDateISO, endDateISO)
 
 // Attraction name lookup
 const attractionNames = computed(() => {
@@ -183,7 +183,7 @@ useIntervalFn(() => {
   refreshWaitTimes()
   refreshVelocity()
   refreshTransitions()
-}, 5 * 60 * 1000)
+}, 60_000)
 </script>
 
 <template>

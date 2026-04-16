@@ -11,7 +11,7 @@ const autoRefresh = ref(true)
 useIntervalFn(() => {
   if (!autoRefresh.value) return
   refreshParks()
-}, 5 * 60 * 1000)
+}, 60_000)
 
 function pressureLabel(park: ParkSummary) {
   if (!park.crowd_pressure) return null
