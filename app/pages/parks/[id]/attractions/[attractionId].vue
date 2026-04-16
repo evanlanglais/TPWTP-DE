@@ -189,8 +189,12 @@ useIntervalFn(() => {
 <template>
   <UDashboardPanel>
     <template #header>
-      <UDashboardNavbar>
+      <UDashboardNavbar :toggle="false">
         <template #left>
+          <NuxtLink to="/" class="flex items-center shrink-0">
+            <LogoIcon />
+          </NuxtLink>
+          <USeparator orientation="vertical" class="h-6 mx-2" />
           <UBreadcrumb :items="breadcrumbItems" />
         </template>
         <template #right>
@@ -216,6 +220,7 @@ useIntervalFn(() => {
               class="w-40"
             />
           </div>
+          <UColorModeButton />
         </template>
       </UDashboardNavbar>
     </template>

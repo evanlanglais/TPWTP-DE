@@ -1,2 +1,43 @@
 @import "tailwindcss";
 @import "@nuxt/ui";
+
+@theme {
+  /* Brand palette — Teal */
+  --color-teal-50: #e6faf3;
+  --color-teal-100: #b3f0de;
+  --color-teal-200: #80e6c8;
+  --color-teal-300: #4ddcb3;
+  --color-teal-400: #1ad29d;
+  --color-teal-500: #00C895;
+  --color-teal-600: #00a87d;
+  --color-teal-700: #008865;
+  --color-teal-800: #00684d;
+  --color-teal-900: #004835;
+  --color-teal-950: #002a1f;
+
+  /* Brand palette — Orange */
+  --color-brand-orange-50: #fff3ee;
+  --color-brand-orange-100: #ffdacc;
+  --color-brand-orange-200: #ffbda3;
+  --color-brand-orange-300: #ff9e77;
+  --color-brand-orange-400: #ff7c4a;
+  --color-brand-orange-500: #FF5722;
+  --color-brand-orange-600: #e04b19;
+  --color-brand-orange-700: #b83d14;
+  --color-brand-orange-800: #902f0f;
+  --color-brand-orange-900: #6b230b;
+  --color-brand-orange-950: #3d1406;
+
+  /* Brand palette — Navy */
+  --color-navy-50: #e8eaf1;
+  --color-navy-100: #c5c9db;
+  --color-navy-200: #9ea4c0;
+  --color-navy-300: #757da4;
+  --color-navy-400: #545f8e;
+  --color-navy-500: #344178;
+  --color-navy-600: #273368;
+  --color-navy-700: #1c2755;
+  --color-navy-800: #131c42;
+  --color-navy-900: #0E1B3F;
+  --color-navy-950: #070d20;
+}

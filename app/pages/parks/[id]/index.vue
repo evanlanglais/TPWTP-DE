@@ -225,12 +225,17 @@ function formatTransitionDate(timestamp: string) {
 <template>
   <UDashboardPanel>
     <template #header>
-      <UDashboardNavbar>
+      <UDashboardNavbar :toggle="false">
         <template #left>
+          <NuxtLink to="/" class="flex items-center shrink-0">
+            <LogoIcon />
+          </NuxtLink>
+          <USeparator orientation="vertical" class="h-6 mx-2" />
           <UBreadcrumb :items="breadcrumbItems" />
         </template>
         <template #right>
           <USwitch v-model="autoRefresh" label="Auto-refresh" size="xs" />
+          <UColorModeButton />
         </template>
       </UDashboardNavbar>
     </template>

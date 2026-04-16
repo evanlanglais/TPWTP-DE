@@ -31,9 +31,15 @@ function operatingLabel(park: ParkSummary) {
 <template>
   <UDashboardPanel>
     <template #header>
-      <UDashboardNavbar title="Parks" icon="i-lucide-ferris-wheel">
+      <UDashboardNavbar :toggle="false">
+        <template #left>
+          <NuxtLink to="/" class="flex items-center">
+            <LogoFull :scale="0.5" />
+          </NuxtLink>
+        </template>
         <template #right>
           <USwitch v-model="autoRefresh" label="Auto-refresh" size="xs" />
+          <UColorModeButton />
         </template>
       </UDashboardNavbar>
     </template>

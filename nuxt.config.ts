@@ -3,6 +3,16 @@ export default defineNuxtConfig({
   compatibilityDate: '2026-03-01',
   devtools: { enabled: true },
   modules: ['@nuxt/ui', '@nuxt/eslint', '@vueuse/nuxt', '@nuxtjs/supabase'],
+  app: {
+    head: {
+      title: 'Park Predictor',
+      link: [
+        { rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg' },
+        { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },
+        { rel: 'apple-touch-icon', sizes: '180x180', href: '/apple-touch-icon.png' }
+      ]
+    }
+  },
   supabase: {
     redirect: false
   },
