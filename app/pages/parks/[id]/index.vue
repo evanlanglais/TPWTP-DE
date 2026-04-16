@@ -34,7 +34,7 @@ useIntervalFn(() => {
   refreshPressure()
   refreshCorrelations()
   refreshImpacts()
-}, 5 * 60 * 1000)
+}, 60_000)
 
 const parkTimezone = computed(() => park.value?.timezone ?? undefined)
 

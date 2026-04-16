@@ -1,6 +1,7 @@
 import type { WaitTime } from '~/types'
 
 export function useHistoricWaitTimes(
+  parkId: Ref<string | null>,
   attractionIds: Ref<string[]>,
   startDate: Ref<string | null>,
   endDate: Ref<string | null>
@@ -8,9 +9,9 @@ export function useHistoricWaitTimes(
   return useAsyncData(
     () => `historic-${attractionIds.value.join(',')}-${startDate.value}-${endDate.value}`,
     () => {
-      if (!attractionIds.value.length || !startDate.value || !endDate.value) return null
+      if (!parkId.value || !attractionIds.value.length || !startDate.value || !endDate.value) return null
 
-      return $fetch<WaitTime[]>('/api/wait-times', {
+      return $fetch<WaitTime[]>(`/api/parks/${parkId.value}/l1/wait-times`, {
         query: {
           attractionIds: attractionIds.value.join(','),
           startDate: startDate.value,
@@ -18,6 +19,6 @@ export function useHistoricWaitTimes(
         }
       })
     },
-    { watch: [attractionIds, startDate, endDate] }
+    { watch: [parkId, attractionIds, startDate, endDate] }
   )
 }
