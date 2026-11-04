@@ -1,21 +1,20 @@
-import { serverSupabaseServiceRole } from '#supabase/server'
-import type { H3Event } from 'h3'
-
 const timezoneCache = new Map<string, { tz: string; cachedAt: number }>()
 const TZ_CACHE_TTL = 3_600_000 // 1 hour
 
-export async function getParkTimezone(event: H3Event, parkId: string): Promise<string> {
+export async function getParkTimezone(parkId: string): Promise<string> {
   const cached = timezoneCache.get(parkId)
   if (cached && Date.now() - cached.cachedAt < TZ_CACHE_TTL) return cached.tz
 
-  const client = serverSupabaseServiceRole(event)
-  const { data } = await client
-    .from('parks')
-    .select('timezone')
-    .eq('id', parkId)
-    .single()
+  let rows: { timezone: string }[]
+  try {
+    rows = await dbQuery<{ timezone: string }>('SELECT timezone FROM parks WHERE id = $1', [parkId])
+  } catch (err) {
+    // Only used to pick a cache policy, so this must not fail the request
+    console.error('Failed to fetch park timezone', err)
+    return 'UTC'
+  }
 
-  const tz = data?.timezone ?? 'UTC'
+  const tz = rows[0]?.timezone ?? 'UTC'
   timezoneCache.set(parkId, { tz, cachedAt: Date.now() })
   return tz
 }

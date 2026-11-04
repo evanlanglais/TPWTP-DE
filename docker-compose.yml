@@ -2,9 +2,6 @@ services:
   app:
     build:
       context: .
-      args:
-        SUPABASE_URL: ${SUPABASE_URL}
-        SUPABASE_KEY: ${SUPABASE_KEY}
     ports:
       - "3000:3000"
     env_file:

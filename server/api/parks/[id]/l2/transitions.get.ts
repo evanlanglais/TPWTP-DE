@@ -1,7 +1,12 @@
-import { serverSupabaseServiceRole } from '#supabase/server'
+const SELECT_TRANSITIONS = `
+  SELECT t.id, t.attraction_id, t.transition_time, t.previous_status, t.new_status, t.duration_seconds,
+    a.name AS attraction_name
+  FROM l2_status_transitions t
+  JOIN attractions a ON a.id = t.attraction_id
+  WHERE a.park_id = $1
+`
 
-export default defineEventHandler(async (event) => {
-  const client = serverSupabaseServiceRole(event)
+export default defineEventHandler((event) => {
   const id = getRouterParam(event, 'id')
   const { startDate, endDate, attractionIds, limit } = getQuery(event)
 
@@ -9,48 +14,29 @@ export default defineEventHandler(async (event) => {
 
   if (startDate && endDate) {
     // Historical range query
-    let query = client
-      .from('l2_status_transitions')
-      .select('id, attraction_id, transition_time, previous_status, new_status, duration_seconds, attractions!inner(name, park_id)')
-      .eq('attractions.park_id', id)
-      .gte('transition_time', startDate as string)
-      .lte('transition_time', endDate as string)
-      .order('transition_time', { ascending: true })
+    const params: unknown[] = [id, startDate, endDate]
+    let attractionFilter = ''
 
     if (attractionIds) {
-      const ids = Array.isArray(attractionIds) ? attractionIds as string[] : (attractionIds as string).split(',')
-      query = query.in('attraction_id', ids)
+      params.push(Array.isArray(attractionIds) ? attractionIds : String(attractionIds).split(','))
+      attractionFilter = 'AND t.attraction_id = ANY($4)'
     }
 
-    const { data, error } = await query
-
-    if (error) throw createError({ statusCode: 500, message: error.message })
-
-    return (data as { id: number; attraction_id: string; transition_time: string; previous_status: string; new_status: string; duration_seconds: number | null; attractions: { name: string; park_id: string } }[]).map(t => ({
-      id: t.id,
-      attraction_id: t.attraction_id,
-      transition_time: t.transition_time,
-      previous_status: t.previous_status,
-      new_status: t.new_status,
-      duration_seconds: t.duration_seconds,
-      attraction_name: t.attractions.name
-    }))
+    return dbQuery(`
+      ${SELECT_TRANSITIONS}
+        AND t.transition_time >= $2 AND t.transition_time <= $3
+        ${attractionFilter}
+      ORDER BY t.transition_time ASC
+      LIMIT ${MAX_ROWS}
+    `, params)
   }
 
   // Recent transitions (no date range)
-  const rowLimit = limit ? Number(limit) : 20
+  const rowLimit = limit ? Math.min(Number(limit), MAX_ROWS) : 20
 
-  const { data, error } = await client
-    .from('l2_status_transitions')
-    .select('id, attraction_id, transition_time, previous_status, new_status, duration_seconds, attractions!inner(name, park_id)')
-    .eq('attractions.park_id', id)
-    .order('transition_time', { ascending: false })
-    .limit(rowLimit)
-
-  if (error) throw createError({ statusCode: 500, message: error.message })
-
-  return (data as { id: number; attraction_id: string; transition_time: string; previous_status: string; new_status: string; duration_seconds: number | null; attractions: { name: string; park_id: string } }[]).map(t => ({
-    ...t,
-    attraction_name: t.attractions.name
-  }))
+  return dbQuery(`
+    ${SELECT_TRANSITIONS}
+    ORDER BY t.transition_time DESC
+    LIMIT $2
+  `, [id, rowLimit])
 })

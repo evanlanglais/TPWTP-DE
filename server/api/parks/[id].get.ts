@@ -1,17 +1,15 @@
-import { serverSupabaseServiceRole } from '#supabase/server'
-
 export default defineEventHandler(async (event) => {
-  const client = serverSupabaseServiceRole(event)
   const id = getRouterParam(event, 'id')
 
   if (!id) throw createError({ statusCode: 400, message: 'Missing park id' })
 
-  const { data, error } = await client
-    .from('parks')
-    .select('id, name, timezone, destination_id, destinations(name)')
-    .eq('id', id)
-    .single()
+  const [park] = await dbQuery(`
+    SELECT p.id, p.name, p.timezone, p.destination_id,
+      (SELECT json_build_object('name', d.name) FROM destinations d WHERE d.id = p.destination_id) AS destinations
+    FROM parks p
+    WHERE p.id = $1
+  `, [id])
 
-  if (error) throw createError({ statusCode: 500, message: error.message })
-  return data
+  if (!park) throw createError({ statusCode: 404, message: 'Park not found' })
+  return park
 })

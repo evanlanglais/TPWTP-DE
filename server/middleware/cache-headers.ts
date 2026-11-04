@@ -31,7 +31,7 @@ export default defineEventHandler(async (event) => {
 
   // Determine cache policy based on date range and timezone
   if (hasDateRange) {
-    const timezone = await getParkTimezone(event, parkId)
+    const timezone = await getParkTimezone(parkId)
     const historical = isHistoricalDate(query.endDate as string, timezone)
     setResponseHeader(event, 'cache-control', historical ? CACHE_HISTORICAL : CACHE_SHORT)
   } else {
@@ -43,7 +43,7 @@ export default defineEventHandler(async (event) => {
     const metricNames = ETAG_METRIC_MAP[levelEndpoint]
     if (metricNames) {
       try {
-        const cursors = await getProcessingCursors(event)
+        const cursors = await getProcessingCursors()
         const etag = buildETag(cursors, metricNames)
 
         const ifNoneMatch = getRequestHeader(event, 'if-none-match')

@@ -1,61 +1,35 @@
-import { serverSupabaseServiceRole } from '#supabase/server'
+const SELECT_CORRELATIONS = `
+  SELECT c.park_id, c.attraction_a, c.attraction_b, c.computed_at, c.window_start, c.window_end,
+    c.correlation, c.sample_count,
+    COALESCE(a.name, '') AS attraction_a_name,
+    COALESCE(b.name, '') AS attraction_b_name
+  FROM l3_correlation_pairs c
+  LEFT JOIN attractions a ON a.id = c.attraction_a
+  LEFT JOIN attractions b ON b.id = c.attraction_b
+  WHERE c.park_id = $1
+`
 
-export default defineEventHandler(async (event) => {
-  const client = serverSupabaseServiceRole(event)
+export default defineEventHandler((event) => {
   const id = getRouterParam(event, 'id')
   const { startDate, endDate } = getQuery(event)
 
   if (!id) throw createError({ statusCode: 400, message: 'Missing park id' })
 
-  const selectCols = 'park_id, attraction_a, attraction_b, computed_at, window_start, window_end, correlation, sample_count, attr_a:attractions!l3_correlation_pairs_attraction_a_fkey(name), attr_b:attractions!l3_correlation_pairs_attraction_b_fkey(name)'
-
-  const mapRow = (row: any) => ({
-    park_id: row.park_id,
-    attraction_a: row.attraction_a,
-    attraction_b: row.attraction_b,
-    computed_at: row.computed_at,
-    window_start: row.window_start,
-    window_end: row.window_end,
-    correlation: row.correlation,
-    sample_count: row.sample_count,
-    attraction_a_name: row.attr_a?.name ?? '',
-    attraction_b_name: row.attr_b?.name ?? ''
-  })
-
   if (startDate && endDate) {
     // Historical range query by computed_at
-    const { data, error } = await client
-      .from('l3_correlation_pairs')
-      .select(selectCols)
-      .eq('park_id', id)
-      .gte('computed_at', startDate as string)
-      .lte('computed_at', endDate as string)
-      .order('computed_at', { ascending: true })
-      .order('correlation', { ascending: false })
-
-    if (error) throw createError({ statusCode: 500, message: error.message })
-    return (data as any[]).map(mapRow)
+    return dbQuery(`
+      ${SELECT_CORRELATIONS}
+        AND c.computed_at >= $2 AND c.computed_at <= $3
+      ORDER BY c.computed_at ASC, c.correlation DESC
+      LIMIT ${MAX_ROWS}
+    `, [id, startDate, endDate])
   }
 
   // Latest computed batch
-  const { data: latest, error: latestError } = await client
-    .from('l3_correlation_pairs')
-    .select('computed_at')
-    .eq('park_id', id)
-    .order('computed_at', { ascending: false })
-    .limit(1)
-    .maybeSingle()
-
-  if (latestError) throw createError({ statusCode: 500, message: latestError.message })
-  if (!latest) return []
-
-  const { data, error } = await client
-    .from('l3_correlation_pairs')
-    .select(selectCols)
-    .eq('park_id', id)
-    .eq('computed_at', latest.computed_at)
-    .order('correlation', { ascending: false })
-
-  if (error) throw createError({ statusCode: 500, message: error.message })
-  return (data as any[]).map(mapRow)
+  return dbQuery(`
+    ${SELECT_CORRELATIONS}
+      AND c.computed_at = (SELECT max(computed_at) FROM l3_correlation_pairs WHERE park_id = $1)
+    ORDER BY c.correlation DESC
+    LIMIT ${MAX_ROWS}
+  `, [id])
 })

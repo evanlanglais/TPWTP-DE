@@ -2,7 +2,7 @@
 export default defineNuxtConfig({
   compatibilityDate: '2026-03-01',
   devtools: { enabled: true },
-  modules: ['@nuxt/ui', '@nuxt/eslint', '@vueuse/nuxt', '@nuxtjs/supabase'],
+  modules: ['@nuxt/ui', '@nuxt/eslint', '@vueuse/nuxt'],
   app: {
     head: {
       title: 'Park Predictor',
@@ -13,8 +13,9 @@ export default defineNuxtConfig({
       ]
     }
   },
-  supabase: {
-    redirect: false
+  runtimeConfig: {
+    // Set at runtime via NUXT_DATABASE_URL
+    databaseUrl: ''
   },
   css: ['~/assets/css/main.css'],
   nitro: {

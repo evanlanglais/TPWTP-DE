@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Park Predictor — a Nuxt 4 + Nuxt UI dashboard for visualizing theme park ride wait times. Connects directly to Supabase for all data (destinations, parks, attractions, wait_times tables).
+Park Predictor — a Nuxt 4 + Nuxt UI dashboard for visualizing theme park ride wait times. Server routes query Postgres directly with SQL (destinations, parks, attractions, wait_times tables).
 
 ## Commands
 
@@ -19,7 +19,7 @@ No test framework is configured.
 
 **Framework:** Nuxt 4 with Nuxt UI v4, Vite, Vue 3.5
 
-**Data layer:** Supabase via `@nuxtjs/supabase`. Composables in `app/composables/` use `useSupabaseClient()` and `useAsyncData()`.
+**Data layer:** Postgres via `pg`. Routes in `server/api/` run parameterized SQL through `dbQuery()` (`server/utils/db.ts`), connecting with `NUXT_DATABASE_URL`. Composables in `app/composables/` call those routes with `useFetch()`/`useAsyncData()`.
 
 **Charting:** Unovis (`@unovis/vue`, `@unovis/ts`) for timeseries charts. Chart components use `.client.vue` suffix for client-only rendering.
 
@@ -40,7 +40,7 @@ app.vue (UApp wrapper)
 - `useParks.ts` — `useDestinations()`, `useParks()`, `usePark()`, `useAttractions()`
 - `useWaitTimes.ts` — `useLiveWaitTimes()`, `useHistoricWaitTimes()`, `useAttractionWaitTimes()`
 
-**Supabase schema:** `destinations` → `parks` → `attractions` → `wait_times` (partitioned by month)
+**Database schema (hosted on Supabase):** `destinations` → `parks` → `attractions` → `wait_times` (partitioned by month)
 
 **UI:** Nuxt UI v4 (dashboard components, forms, tables), Tailwind CSS v4, Lucide icons
 

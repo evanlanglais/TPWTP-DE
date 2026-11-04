@@ -1,7 +1,10 @@
-import { serverSupabaseServiceRole } from '#supabase/server'
+const SELECT_PRESSURE = `
+  SELECT park_id, "timestamp", pressure_score, pressure_ema, trend, operating_count, avg_wait
+  FROM l3_park_crowd_pressure
+  WHERE park_id = $1
+`
 
 export default defineEventHandler(async (event) => {
-  const client = serverSupabaseServiceRole(event)
   const id = getRouterParam(event, 'id')
   const { startDate, endDate } = getQuery(event)
 
@@ -9,27 +12,20 @@ export default defineEventHandler(async (event) => {
 
   if (startDate && endDate) {
     // Historical range query
-    const { data, error } = await client
-      .from('l3_park_crowd_pressure')
-      .select('park_id, timestamp, pressure_score, pressure_ema, trend, operating_count, avg_wait')
-      .eq('park_id', id)
-      .gte('timestamp', startDate as string)
-      .lte('timestamp', endDate as string)
-      .order('timestamp', { ascending: true })
-
-    if (error) throw createError({ statusCode: 500, message: error.message })
-    return data
+    return dbQuery(`
+      ${SELECT_PRESSURE}
+        AND "timestamp" >= $2 AND "timestamp" <= $3
+      ORDER BY "timestamp" ASC
+      LIMIT ${MAX_ROWS}
+    `, [id, startDate, endDate])
   }
 
   // Latest record
-  const { data, error } = await client
-    .from('l3_park_crowd_pressure')
-    .select('park_id, timestamp, pressure_score, pressure_ema, trend, operating_count, avg_wait')
-    .eq('park_id', id)
-    .order('timestamp', { ascending: false })
-    .limit(1)
-    .maybeSingle()
+  const [latest] = await dbQuery(`
+    ${SELECT_PRESSURE}
+    ORDER BY "timestamp" DESC
+    LIMIT 1
+  `, [id])
 
-  if (error) throw createError({ statusCode: 500, message: error.message })
-  return data
+  return latest ?? null
 })

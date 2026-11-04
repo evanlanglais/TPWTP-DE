@@ -13,17 +13,18 @@
     "@internationalized/date": "^3.11.0",
     "@nuxt/eslint": "^1.15.2",
     "@nuxt/ui": "^4.5.0",
-    "@nuxtjs/supabase": "^2.0.4",
     "@tanstack/vue-table": "^8.21.3",
     "@unovis/ts": "^1.6.4",
     "@unovis/vue": "^1.6.4",
     "@vueuse/nuxt": "^14.2.1",
     "date-fns": "^4.1.0",
     "nuxt": "^4.3.1",
+    "pg": "^8.23.1",
     "vue": "^3.5.29"
   },
   "devDependencies": {
     "@iconify-json/lucide": "^1.2.95",
-    "@iconify-json/simple-icons": "^1.2.71"
+    "@iconify-json/simple-icons": "^1.2.71",
+    "@types/pg": "^8.23.1"
   }
 }

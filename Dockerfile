@@ -7,8 +7,6 @@ RUN npm ci
 
 COPY . .
 
-ARG SUPABASE_URL
-ARG SUPABASE_KEY
 RUN npm run build
 
 FROM node:20-alpine

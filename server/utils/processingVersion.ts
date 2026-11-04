@@ -1,6 +1,3 @@
-import { serverSupabaseServiceRole } from '#supabase/server'
-import type { H3Event } from 'h3'
-
 interface ProcessingCursor {
   metric_name: string
   logic_version: number
@@ -12,25 +9,22 @@ let cachedCursors: ProcessingCursor[] | null = null
 let cacheTimestamp = 0
 const CACHE_TTL_MS = 60_000 // 1 minute
 
-export async function getProcessingCursors(event: H3Event): Promise<ProcessingCursor[]> {
+export async function getProcessingCursors(): Promise<ProcessingCursor[]> {
   const now = Date.now()
   if (cachedCursors && (now - cacheTimestamp) < CACHE_TTL_MS) {
     return cachedCursors
   }
 
-  const client = serverSupabaseServiceRole(event)
-  const { data, error } = await client
-    .from('l2_processing_cursors')
-    .select('metric_name, logic_version, updated_at, last_processed')
-
-  if (error) {
+  try {
+    cachedCursors = await dbQuery<ProcessingCursor>(
+      'SELECT metric_name, logic_version, updated_at, last_processed FROM l2_processing_cursors'
+    )
+    cacheTimestamp = now
+    return cachedCursors
+  } catch (err) {
     if (cachedCursors) return cachedCursors
-    throw createError({ statusCode: 500, message: `Failed to fetch processing cursors: ${error.message}` })
+    throw err
   }
-
-  cachedCursors = data as ProcessingCursor[]
-  cacheTimestamp = now
-  return cachedCursors
 }
 
 export function buildETag(cursors: ProcessingCursor[], metricNames: string[]): string {
