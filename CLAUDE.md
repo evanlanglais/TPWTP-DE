@@ -2,6 +2,17 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Project Knowledge (Xynon Brain)
+
+Brain project: park-predictor
+Brain repo: TPWTP-DE
+
+Project goals, status, decisions, infrastructure and repo gotchas live in the Xynon Brain vault, not in this repo. This repo is one of several in the project.
+- Start here: `Claude/Projects/park-predictor/index.md`
+- This repo: `Claude/Projects/park-predictor/repos/TPWTP-DE.md`
+- Decisions: `Claude/Projects/park-predictor/decisions.md`
+- External context: `Claude/Projects/park-predictor/notes/`
+
 ## Project Overview
 
 Park Predictor — a Nuxt 4 + Nuxt UI dashboard for visualizing theme park ride wait times. Server routes query Postgres directly with SQL (destinations, parks, attractions, wait_times tables).
