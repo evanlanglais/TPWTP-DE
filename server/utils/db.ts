@@ -1,8 +1,7 @@
 import pg from 'pg'
 import type { QueryResultRow } from 'pg'
 
-// Upper bound for queries whose size depends on request input. Matches the 1000-row
-// default that PostgREST previously enforced on every response.
+// Upper bound for queries whose size depends on request input.
 export const MAX_ROWS = 1000
 
 const OID = { INT8: 20, TIMESTAMP: 1114, TIMESTAMPTZ: 1184, DATE: 1082, NUMERIC: 1700 }
@@ -32,7 +31,6 @@ function getPool(): pg.Pool {
     max: 5,
     idleTimeoutMillis: 30_000,
     connectionTimeoutMillis: 10_000,
-    // Enforced client-side: connection poolers reject statement_timeout as a startup parameter
     query_timeout: 30_000
   })
   // Without a listener, an error on an idle client would crash the process

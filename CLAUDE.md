@@ -51,11 +51,11 @@ app.vue (UApp wrapper)
 - `useParks.ts` — `useDestinations()`, `useParks()`, `usePark()`, `useAttractions()`
 - `useWaitTimes.ts` — `useLiveWaitTimes()`, `useHistoricWaitTimes()`, `useAttractionWaitTimes()`
 
-**Database schema (hosted on Supabase):** `destinations` → `parks` → `attractions` → `wait_times` (partitioned by month)
+**Database schema (self-hosted Postgres):** `destinations` → `parks` → `attractions` → `wait_times` (partitioned by month)
 
 **UI:** Nuxt UI v4 (dashboard components, forms, tables), Tailwind CSS v4, Lucide icons
 
-**Deployment:** Azure Static Web Apps via GitHub Actions on push to `master`.
+**Deployment:** Docker Compose (`Dockerfile`, `docker-compose.yml`), deployed by hand. There is no CI.
 
 ## Path Alias
 
